@@ -4590,7 +4590,7 @@ extern int fed_mgr_job_lock_set(uint32_t job_id, uint32_t cluster_id)
 
 	if (!(job_info = _find_fed_job_info(job_id))) {
 		error("Didn't find JobId=%u in fed_job_list", job_id);
-		rc = SLURM_ERROR;
+		rc = ESLURM_INVALID_JOB_ID;
 	} else if (_job_has_pending_updates(job_info)) {
 		log_flag(FEDR, "%s: cluster %u can't get cluster lock for JobId=%u because it has pending updates",
 			 __func__, cluster_id, job_id);
