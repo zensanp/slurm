@@ -231,7 +231,7 @@ static List gres_conf_list = NULL;
 static bool init_run = false;
 static uint32_t gpu_plugin_id = NO_VAL;
 static volatile uint32_t autodetect_flags = GRES_AUTODETECT_UNSET;
-static uint32_t select_plugin_type = NO_VAL;
+uint32_t select_plugin_type = NO_VAL;
 static buf_t *gres_context_buf = NULL;
 static buf_t *gres_conf_buf = NULL;
 

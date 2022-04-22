@@ -389,6 +389,8 @@ typedef struct gres_mc_data {
 	uint8_t whole_node;         /* allocate entire node */
 } gres_mc_data_t;
 
+extern uint32_t select_plugin_type;
+
 /*
  * Initialize the GRES plugins.
  *
