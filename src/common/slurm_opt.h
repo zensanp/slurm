@@ -555,6 +555,15 @@ extern void validate_options_salloc_sbatch_srun(slurm_opt_t *opt);
  */
 extern void validate_spec_cores_options(slurm_opt_t *opt);
 
+
+/*
+ * Some options can be validated when we know the cluster details.
+ * For instance SelectType and those have to be handled correctly also when
+ * -M is used.
+ */
+extern void validate_job_desc_on_cluster(job_desc_msg_t *req,
+					 slurmdb_cluster_rec_t *cluster_rec);
+
 /*
  * Return the argv options in a string.
  */

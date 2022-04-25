@@ -537,6 +537,13 @@ List allocate_het_job_nodes(bool handle_signals)
 		print_db_notok(first_opt->clusters, 0);
 		FREE_NULL_LIST(job_req_list);
 		return NULL;
+	} else if (first_opt && !first_opt->clusters) {
+		ListIterator desc_iter;
+		job_desc_msg_t *desc;
+		desc_iter = list_iterator_create(job_req_list);
+		while ((desc = list_next(desc_iter)))
+			validate_job_desc_on_cluster(desc, NULL);
+		list_iterator_destroy(desc_iter);
 	}
 
 	callbacks.timeout = _timeout_handler;

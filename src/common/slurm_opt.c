@@ -5906,6 +5906,43 @@ extern void validate_options_salloc_sbatch_srun(slurm_opt_t *opt)
 	_validate_memory_options(opt);
 }
 
+extern void validate_job_desc_on_cluster(job_desc_msg_t *req,
+					 slurmdb_cluster_rec_t *cluster_rec)
+{
+	int rc;
+	List tmp_gres_list = NULL;
+
+	if (cluster_rec) {
+		uint32_t select_plugin = cluster_rec->plugin_id_select;
+		if ((select_plugin == SELECT_PLUGIN_CONS_TRES) ||
+		    (select_plugin == SELECT_PLUGIN_CRAY_CONS_TRES))
+			select_plugin_type = SELECT_TYPE_CONS_TRES;
+		else if ((select_plugin == SELECT_PLUGIN_CONS_RES) ||
+			 (select_plugin == SELECT_PLUGIN_CRAY_CONS_RES))
+			select_plugin_type = SELECT_TYPE_CONS_RES;
+	}
+
+	rc = gres_job_state_validate(req->cpus_per_tres,
+				     req->tres_freq,
+				     req->tres_per_job,
+				     req->tres_per_node,
+				     req->tres_per_socket,
+				     req->tres_per_task,
+				     req->mem_per_tres,
+				     &req->num_tasks,
+				     &req->min_nodes,
+				     &req->max_nodes,
+				     &req->ntasks_per_node,
+				     &req->ntasks_per_socket,
+				     &req->sockets_per_node,
+				     &req->cpus_per_task,
+				     &req->ntasks_per_tres,
+				     &tmp_gres_list);
+	if (rc) {
+		fatal("%s", slurm_strerror(rc));
+	}
+}
+
 extern char *slurm_option_get_argv_str(const int argc, char **argv)
 {
 	char *submit_line;
@@ -5925,8 +5962,6 @@ extern job_desc_msg_t *slurm_opt_create_job_desc(slurm_opt_t *opt_local,
 						 bool set_defaults)
 {
 	job_desc_msg_t *job_desc = xmalloc_nz(sizeof(*job_desc));
-	List tmp_gres_list = NULL;
-	int rc;
 
 	slurm_init_job_desc_msg(job_desc);
 
@@ -6220,28 +6255,6 @@ extern job_desc_msg_t *slurm_opt_create_job_desc(slurm_opt_t *opt_local,
 			xstrdup(opt_local->x11_magic_cookie);
 		job_desc->x11_target = xstrdup(opt_local->x11_target);
 		job_desc->x11_target_port = opt_local->x11_target_port;
-	}
-
-	rc = gres_job_state_validate(job_desc->cpus_per_tres,
-				     job_desc->tres_freq,
-				     job_desc->tres_per_job,
-				     job_desc->tres_per_node,
-				     job_desc->tres_per_socket,
-				     job_desc->tres_per_task,
-				     job_desc->mem_per_tres,
-				     &job_desc->num_tasks,
-				     &job_desc->min_nodes,
-				     &job_desc->max_nodes,
-				     &job_desc->ntasks_per_node,
-				     &job_desc->ntasks_per_socket,
-				     &job_desc->sockets_per_node,
-				     &job_desc->cpus_per_task,
-				     &job_desc->ntasks_per_tres,
-				     &tmp_gres_list);
-	FREE_NULL_LIST(tmp_gres_list);
-	if (rc) {
-		error("%s", slurm_strerror(rc));
-		return NULL;
 	}
 
 	return job_desc;

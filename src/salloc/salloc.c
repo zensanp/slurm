@@ -361,7 +361,18 @@ int main(int argc, char **argv)
 			print_db_notok(opt.clusters, 0);
 			exit(error_exit);
 		}
+	} else {
+		if (job_req_list) {
+			ListIterator desc_iter;
+			job_desc_msg_t *desc;
+			desc_iter = list_iterator_create(job_req_list);
+			while ((desc = list_next(desc_iter)))
+				validate_job_desc_on_cluster(desc, NULL);
+			list_iterator_destroy(desc_iter);
+		} else
+			validate_job_desc_on_cluster(desc, NULL);
 	}
+
 	if (job_req_list)
 		(void) list_for_each(job_req_list, _set_cluster_name, NULL);
 	else
