@@ -1780,6 +1780,7 @@ _pack_update_partition_msg(update_part_msg_t * msg, buf_t *buffer,
 		pack32(msg-> grace_time,   buffer);
 
 		pack32(msg-> max_cpus_per_node, buffer);
+		pack32(msg->max_cpus_per_socket, buffer);
 		pack64(msg-> max_mem_per_cpu, buffer);
 		pack32(msg-> max_nodes,    buffer);
 		pack16(msg-> max_share,    buffer);
@@ -1871,6 +1872,7 @@ _unpack_update_partition_msg(update_part_msg_t ** msg, buf_t *buffer,
 		safe_unpack32(&tmp_ptr->grace_time, buffer);
 
 		safe_unpack32(&tmp_ptr->max_cpus_per_node, buffer);
+		safe_unpack32(&tmp_ptr->max_cpus_per_socket, buffer);
 		safe_unpack64(&tmp_ptr->max_mem_per_cpu, buffer);
 		safe_unpack32(&tmp_ptr->max_nodes, buffer);
 		safe_unpack16(&tmp_ptr->max_share, buffer);
@@ -2672,6 +2674,7 @@ _unpack_partition_info_members(partition_info_t * part, buf_t *buffer,
 		safe_unpack32(&part->total_cpus, buffer);
 		safe_unpack64(&part->def_mem_per_cpu, buffer);
 		safe_unpack32(&part->max_cpus_per_node, buffer);
+		safe_unpack32(&part->max_cpus_per_socket, buffer);
 		safe_unpack64(&part->max_mem_per_cpu, buffer);
 		safe_unpack16(&part->flags, buffer);
 		safe_unpack16(&part->max_share, buffer);
