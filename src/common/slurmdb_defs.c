@@ -498,7 +498,7 @@ static local_cluster_rec_t * _job_will_run (job_desc_msg_t *req)
 	char buf[64];
 	int rc;
 
-	validate_job_desc_on_cluster(req, local_cluster->cluster_rec);
+	validate_job_desc_on_cluster(req, working_cluster_rec);
 
 	rc = slurm_job_will_run2(req, &will_run_resp);
 
