@@ -3066,6 +3066,7 @@ extern int slurmdb_get_first_avail_cluster(job_desc_msg_t *req,
 		goto end_it;
 	} else if (list_count(cluster_list) == 1) {
 		*cluster_rec = list_pop(cluster_list);
+		validate_job_desc_on_cluster(req, *cluster_rec);
 		goto end_it;
 	}
 
