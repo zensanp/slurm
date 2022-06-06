@@ -50,6 +50,7 @@
 #include "src/common/parse_time.h"
 #include "src/common/plugstack.h"
 #include "src/common/proc_args.h"
+#include "src/common/select.h"
 #include "src/common/slurm_acct_gather_profile.h"
 #include "src/common/slurm_resource_info.h"
 #include "src/common/tres_bind.h"
@@ -5911,14 +5912,14 @@ extern void validate_job_desc_on_cluster(job_desc_msg_t *req,
 {
 	int rc;
 	List tmp_gres_list = NULL;
+	int working_select_plugin = select_get_plugin_id();
 
-	if (cluster_rec) {
-		uint32_t select_plugin = cluster_rec->plugin_id_select;
-		if ((select_plugin == SELECT_PLUGIN_CONS_TRES) ||
-		    (select_plugin == SELECT_PLUGIN_CRAY_CONS_TRES))
+	if (working_select_plugin > 0) {
+		if ((working_select_plugin == SELECT_PLUGIN_CONS_TRES) ||
+		    (working_select_plugin == SELECT_PLUGIN_CRAY_CONS_TRES))
 			select_plugin_type = SELECT_TYPE_CONS_TRES;
-		else if ((select_plugin == SELECT_PLUGIN_CONS_RES) ||
-			 (select_plugin == SELECT_PLUGIN_CRAY_CONS_RES))
+		else if ((working_select_plugin == SELECT_PLUGIN_CONS_RES) ||
+			 (working_select_plugin == SELECT_PLUGIN_CRAY_CONS_RES))
 			select_plugin_type = SELECT_TYPE_CONS_RES;
 	}
 
