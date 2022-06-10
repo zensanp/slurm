@@ -3214,7 +3214,6 @@ extern int slurmdb_get_first_het_job_cluster(List job_req_list,
 	tried_feds = list_create(NULL);
 	ret_list = list_create(xfree_ptr);
 	itr = list_iterator_create(cluster_list);
-
 	while ((working_cluster_rec = list_next(itr))) {
 		/* only try one cluster from each federation */
 		if (working_cluster_rec->fed.id &&
