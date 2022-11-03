@@ -2073,6 +2073,22 @@ static int _pick_step_cores(step_record_t *step_ptr,
 		}
 	}
 
+	if (use_all_cores) {
+		/* This needs to be in sync with _pick_step_core */
+		job_resrcs_ptr->core_bitmap_used =
+			bit_copy(job_resrcs_ptr->core_bitmap);
+		step_ptr->core_bitmap_job =
+			bit_copy(job_resrcs_ptr->core_bitmap);
+		if (!(step_ptr->flags & SSF_OVERLAP_FORCE)) {
+			bit_or(job_resrcs_ptr->core_bitmap_used,
+			       step_ptr->core_bitmap_job);
+		}
+
+		log_flag(STEPS, "%s: Using all core for step %pS",
+			 __func__, step_ptr);
+		goto cleanup;
+	}
+
 	all_gres_core_bitmap = bit_copy(job_resrcs_ptr->core_bitmap);
 	any_gres_core_bitmap = bit_copy(job_resrcs_ptr->core_bitmap);
 	if (step_ptr->gres_list_alloc) {
