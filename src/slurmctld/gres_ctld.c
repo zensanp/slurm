@@ -725,39 +725,54 @@ static int _job_alloc_whole_node_internal(
 	gres_key_t *job_search_key, gres_state_t *gres_state_node,
 	List job_gres_list, List *job_gres_list_alloc, int node_cnt,
 	int node_index, int node_offset, int type_index, uint32_t job_id,
-	char *node_name, bitstr_t *core_bitmap, bool new_alloc)
+	char *node_name, bitstr_t *core_bitmap, bool new_alloc,
+	bool *req_has_type)
 {
 	gres_state_t *gres_state_job;
 	gres_job_state_t *gres_js;
 	gres_node_state_t *gres_ns = gres_state_node->gres_data;
+	bool implicit_gres = !(gres_state_node->config_flags &
+			       GRES_CONF_EXPLICIT);
 
 	if (*job_gres_list_alloc == NULL) {
 		*job_gres_list_alloc = list_create(gres_job_list_delete);
 	}
 
 	if (!(gres_state_job = list_find_first(job_gres_list,
-					       gres_find_job_by_key,
+					       gres_find_by_type_notype_match,
 					       job_search_key))) {
-		error("%s: This should never happen, we couldn't find the gres %u:%u",
-		      __func__,
-		      job_search_key->plugin_id,
-		      job_search_key->type_id);
-		return SLURM_ERROR;
-	}
+		if (implicit_gres) {
+			error("%s: This should never happen, we couldn't find the gres %u:%u",
+			      __func__,
+			      job_search_key->plugin_id,
+			      job_search_key->type_id);
+			return SLURM_ERROR;
+		} else {
 
+			debug2("%s: Skipping explicit GRES %u:%u",
+			       __func__,
+			       job_search_key->plugin_id,
+			       job_search_key->type_id);
+			return SLURM_SUCCESS;
+		}
+	}
 	gres_js = (gres_job_state_t *)gres_state_job->gres_data;
 
+	if (req_has_type && gres_js->type_name)
+		*req_has_type = true;
+
 	/*
-	 * As the amount of gres on each node could
-	 * differ. We need to set the gres_per_node
-	 * correctly here to avoid heterogeneous node
-	 * issues.
+	 * As the amount of gres on each node could differ. We need to set the
+	 * gres_per_node correctly here to avoid heterogeneous node issues.
+	 * If GRES is explicit the value is already set to what was requested.
 	 */
-	if (type_index != -1)
-		gres_js->gres_per_node =
-			gres_ns->type_cnt_avail[type_index];
-	else
-		gres_js->gres_per_node = gres_ns->gres_cnt_avail;
+	if (implicit_gres) {
+		if (type_index != -1)
+			gres_js->gres_per_node =
+				gres_ns->type_cnt_avail[type_index];
+		else
+			gres_js->gres_per_node = gres_ns->gres_cnt_avail;
+	}
 
 	return _job_alloc(gres_state_job, *job_gres_list_alloc, gres_state_node,
 			  node_cnt, node_index, node_offset,
@@ -817,11 +832,12 @@ static int _foreach_clear_job_gres(void *x, void *arg)
  *		       gres_node_config_validate()
  * IN job_id      - job's ID (for logging)
  * IN node_name   - name of the node (for logging)
+ * IN job_gres_req - list of requested GRES
  * RET SLURM_SUCCESS or error code
  */
 extern int gres_ctld_job_select_whole_node(
 	List *job_gres_list, List node_gres_list,
-	uint32_t job_id, char *node_name)
+	uint32_t job_id, char *node_name, List job_gres_req)
 {
 	ListIterator node_gres_iter;
 	gres_state_t *gres_state_node;
@@ -840,9 +856,11 @@ extern int gres_ctld_job_select_whole_node(
 
 	node_gres_iter = list_iterator_create(node_gres_list);
 	while ((gres_state_node = list_next(node_gres_iter))) {
+		gres_state_t *req_gres = NULL;
 		gres_key_t job_search_key;
 		gres_ns = (gres_node_state_t *) gres_state_node->gres_data;
-
+		bool implicit_gres = !(gres_state_node->config_flags &
+				       GRES_CONF_EXPLICIT);
 		/*
 		 * Don't check for no_consume here, we need them added here and
 		 * will filter them out in gres_job_alloc_whole_node()
@@ -854,23 +872,44 @@ extern int gres_ctld_job_select_whole_node(
 		if (gres_id_shared(gres_state_node->config_flags))
 			continue;
 
+
 		job_search_key.config_flags = gres_state_node->config_flags;
 		job_search_key.plugin_id = gres_state_node->plugin_id;
 
 		/* Add the non-typed one first/always */
 		job_search_key.type_id = 0;
-		_job_select_whole_node_internal(
-			&job_search_key, gres_ns,
-			-1, gres_state_node->gres_name, *job_gres_list);
+
+		if (implicit_gres) {
+			_job_select_whole_node_internal(&job_search_key,
+						gres_ns,
+						-1,
+						gres_state_node->gres_name,
+						*job_gres_list);
+		} else if (job_gres_req &&
+			   (req_gres = list_remove_first(job_gres_req,
+						gres_find_id,
+						&job_search_key.plugin_id))) {
+			list_append(*job_gres_list, req_gres);
+			req_gres = NULL;
+		}
+
 
 		/* Then add the typed ones if any */
 		for (int j = 0; j < gres_ns->type_cnt; j++) {
 			job_search_key.type_id = gres_build_id(
 				gres_ns->type_name[j]);
-			_job_select_whole_node_internal(
-				&job_search_key, gres_ns,
-				j, gres_state_node->gres_name,
-				*job_gres_list);
+			if (implicit_gres)
+				_job_select_whole_node_internal(&job_search_key,
+						gres_ns,
+						j,
+						gres_state_node->gres_name,
+						*job_gres_list);
+			else if (job_gres_req &&
+			     (req_gres = list_remove_first(job_gres_req,
+						gres_find_by_type_notype_match,
+						&job_search_key)))
+				list_append(*job_gres_list, req_gres);
+			req_gres = NULL;
 		}
 	}
 	list_iterator_destroy(node_gres_iter);
@@ -1026,6 +1065,8 @@ extern int gres_ctld_job_alloc_whole_node(
 	while ((gres_state_node = list_next(node_gres_iter))) {
 		gres_key_t job_search_key;
 		gres_ns = (gres_node_state_t *) gres_state_node->gres_data;
+		bool explicit_gres = gres_state_node->config_flags &
+			GRES_CONF_EXPLICIT;
 
 		if (!gres_ns->gres_cnt_config)
 			continue;
@@ -1033,14 +1074,13 @@ extern int gres_ctld_job_alloc_whole_node(
 		/* Never allocate any shared GRES. */
 		if (gres_id_shared(gres_state_node->config_flags))
 			continue;
-
 		job_search_key.config_flags = gres_state_node->config_flags;
 		job_search_key.plugin_id = gres_state_node->plugin_id;
 
 		/*
 		 * This check is needed and different from the one in
 		 * gres_ctld_job_select_whole_node(). _job_alloc() handles all
-		 * the heavy lifting later on to make this all correct.
+		 * the heavy lifting later on to make this all correct
 		 */
 		if (!gres_ns->type_cnt) {
 			job_search_key.type_id = 0;
@@ -1049,11 +1089,12 @@ extern int gres_ctld_job_alloc_whole_node(
 				job_gres_list, job_gres_list_alloc,
 				node_cnt, node_index,
 				node_offset, -1, job_id, node_name,
-				core_bitmap, new_alloc);
+				core_bitmap, new_alloc, NULL);
 			if (rc2 != SLURM_SUCCESS)
 				rc = rc2;
 		} else {
 			for (int j = 0; j < gres_ns->type_cnt; j++) {
+				bool has_type = false;
 				job_search_key.type_id = gres_build_id(
 					gres_ns->type_name[j]);
 				rc2 = _job_alloc_whole_node_internal(
@@ -1061,9 +1102,16 @@ extern int gres_ctld_job_alloc_whole_node(
 					job_gres_list, job_gres_list_alloc,
 					node_cnt, node_index,
 					node_offset, j, job_id, node_name,
-					core_bitmap, new_alloc);
+					core_bitmap, new_alloc, &has_type);
 				if (rc2 != SLURM_SUCCESS)
 					rc = rc2;
+				/*
+				 * If the request is without type we need to
+				 * break here to prevent allocation on different
+				 * types.
+				 */
+				if (explicit_gres && !has_type)
+					break;
 			}
 		}
 	}

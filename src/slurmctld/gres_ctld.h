@@ -47,11 +47,12 @@
  *		       gres_node_config_validate()
  * IN job_id      - job's ID (for logging)
  * IN node_name   - name of the node (for logging)
+ * IN job_gres_req - GRES requested by the job
  * RET SLURM_SUCCESS or error code
  */
 extern int gres_ctld_job_select_whole_node(
 	List *job_gres_list, List node_gres_list,
-	uint32_t job_id, char *node_name);
+	uint32_t job_id, char *node_name, List job_gres_req);
 
 /*
  * Select and allocate all GRES on a node to a job and update node and job GRES

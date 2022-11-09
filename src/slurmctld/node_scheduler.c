@@ -2255,7 +2255,8 @@ static List _handle_exclusive_gres(job_record_t *job_ptr,
 		gres_ctld_job_select_whole_node(&post_list,
 						node_ptr->gres_list,
 						job_ptr->job_id,
-						node_ptr->name);
+						node_ptr->name,
+						job_ptr->gres_list_req);
 	}
 
 	return post_list;

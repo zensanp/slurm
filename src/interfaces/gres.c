@@ -375,6 +375,21 @@ extern int gres_find_job_by_key(void *x, void *key)
 }
 
 /* Find job record with matching name and type */
+extern int gres_find_by_type_notype_match(void *x, void *key)
+{
+	gres_state_t *gres_state_job = (gres_state_t *) x;
+	gres_key_t *job_key = (gres_key_t *) key;
+	gres_job_state_t *gres_js;
+	gres_js = (gres_job_state_t *)gres_state_job->gres_data;
+
+	if ((gres_state_job->plugin_id == job_key->plugin_id) &&
+	    ((gres_js->type_name == NULL) ||
+	     (gres_js->type_id == job_key->type_id)))
+		return 1;
+	return 0;
+}
+
+/* Find job record with matching name and type */
 extern int gres_find_job_by_key_with_cnt(void *x, void *key)
 {
 	gres_state_t *gres_state_job = (gres_state_t *) x;
@@ -1262,6 +1277,8 @@ extern uint32_t gres_flags_parse(char *input, bool *no_gpu_env,
 		flags |= GRES_CONF_ENV_OPENCL;
 	if (xstrcasestr(input, "one_sharing"))
 		flags |= GRES_CONF_ONE_SHARING;
+	if (xstrcasestr(input, "explicit"))
+		flags |= GRES_CONF_EXPLICIT;
 	/* String 'no_gpu_env' will clear all GPU env vars */
 	if (no_gpu_env)
 		*no_gpu_env = xstrcasestr(input, "no_gpu_env");
@@ -1421,6 +1438,8 @@ static int _parse_gres_config(void **dest, slurm_parser_enum_t type,
 			_set_prev_env_flags(&prev_env, p, env_flags,
 					    no_gpu_env);
 		}
+		if (flags & GRES_CONF_EXPLICIT)
+			p->config_flags |= GRES_CONF_EXPLICIT;
 
 		xfree(tmp_str);
 	} else if ((prev_env.flags || prev_env.no_gpu_env) &&
@@ -1578,6 +1597,11 @@ static int _foreach_gres_conf(void *x, void *arg)
 	 * any other to be the same as we use the gres_ctx from here
 	 * on out.
 	 */
+	if (gres_slurmd_conf->config_flags & GRES_CONF_EXPLICIT)
+		gres_ctx->config_flags |= GRES_CONF_EXPLICIT;
+
+	if (gres_slurmd_conf->config_flags & GRES_CONF_COUNT_ONLY)
+		gres_ctx->config_flags |= GRES_CONF_COUNT_ONLY;
 	if (gres_slurmd_conf->config_flags & GRES_CONF_COUNT_ONLY)
 		gres_ctx->config_flags |= GRES_CONF_COUNT_ONLY;
 

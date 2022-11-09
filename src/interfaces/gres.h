@@ -108,6 +108,9 @@ typedef struct {
 
 #define GRES_CONF_ENV_SET    0x000008E0   /* Easy check if any of
 					   * GRES_CONF_ENV_* are set. */
+#define GRES_CONF_EXPLICIT SLURM_BIT(12) /* Don't allocate as part of
+					    whole node alloc if wasn't
+					    directly requested */
 
 #define GRES_NO_CONSUME		0x0001	/* Requesting no consume of resources */
 
@@ -1075,6 +1078,9 @@ extern int gres_find_job_by_key_exact_type(void *x, void *key);
 
 /* Find job record with matching name and type */
 extern int gres_find_job_by_key(void *x, void *key);
+
+/* Find job record with matching name and type */
+extern int gres_find_by_type_notype_match(void *x, void *key);
 
 /* Find job record with matching name and type */
 extern int gres_find_job_by_key_with_cnt(void *x, void *key);
