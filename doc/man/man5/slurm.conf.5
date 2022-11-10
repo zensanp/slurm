@@ -691,6 +691,14 @@ using both IPv4 and IPv6, address family preferences will be based on your
 .IP
 
 .TP
+\fBValidateNodeaddrThreads=\fR
+During configuration reload slurm performs a network validation of node names.
+On large systems this may take a lot of time due to number of nodes. The value
+set here has a meaning of number of threads performing the validation in
+parallel. The default value is 1.
+.IP
+
+.TP
 \fBkeepaliveinterval=#\fR
 Specifies the interval between keepalive probes on the socket communications
 between srun and its slurmstepd process.
