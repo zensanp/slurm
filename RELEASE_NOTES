@@ -52,6 +52,8 @@ HIGHLIGHTS
  -- Add "[jobid.stepid]" prefix from slurmstepd and "slurmscriptd" prefix from
     slurmcriptd to Syslog logging. Previously was only happening when logging
     to a file.
+ -- Add support for 'explicit' GRES flag change the way --exclusive allocation.
+    GRES resource with the flag set is only allocated if explicitly requested.
 
 CONFIGURATION FILE CHANGES (see appropriate man page for details)
 =====================================================================

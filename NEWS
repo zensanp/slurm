@@ -135,6 +135,8 @@ documents those changes that are of interest to users and administrators.
  -- Add "[jobid.stepid]" prefix from slurmstepd and "slurmscriptd" prefix from
     slurmcriptd to Syslog logging. Previously was only happening when logging
     to a file.
+ -- Add support for 'explicit' GRES flag change the way --exclusive allocation.
+    GRES resource with the flag set is only allocated if explicitly requested.
 
 * Changes in Slurm 22.05.7
 ==========================
