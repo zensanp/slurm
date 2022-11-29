@@ -127,6 +127,8 @@ CONFIGURATION FILE CHANGES (see appropriate man page for details)
  -- Add HealthCheckNodeState=NONDRAINED_IDLE option.
  -- Add 'explicit' to Flags in gres.conf. This makes it so the gres is not
     automatically added to a job's allocation when --exclusive is used.
+ -- Add LaunchParameters=ulimit_pam_adopt, which enables setting RLIMIT_RSS in
+    adopted processes.
 
 COMMAND CHANGES (see man pages for details)
 ===========================================

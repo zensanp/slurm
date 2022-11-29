@@ -265,9 +265,8 @@ documents those changes that are of interest to users and administrators.
  -- Add 'explicit' to Flags in gres.conf
  -- Improve validation of --constraint expression syntax.
  -- srun - support job array ids as an argument to --jobid.
-
-* Changes in Slurm 22.05.9
-==========================
+ -- Add LaunchParameters=ulimit_pam_adopt, which enables setting RLIMIT_RSS in
+    adopted processes.
 
 * Changes in Slurm 22.05.8
 ==========================
