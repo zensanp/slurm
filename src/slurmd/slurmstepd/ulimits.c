@@ -80,13 +80,12 @@ static int _set_limit(char **env, slurm_rlimits_info_t *rli);
 int xprlimit(pid_t pid, int resource, const struct rlimit *new_limit,
 	    struct rlimit *old_limit)
 {
-	if (pid)
-		fatal("pid != 0 should only happen on linux systems with pam_slurm_adopt");
-	if (new_limit && old_limit)
-		fatal("%s: Use of both old and new limit is forbidden",
-		      __func__);
+	xassert(pid == 0);
+	xassert(!(new_limit && old_limit));
+
 	if (new_limit)
 		return setrlimit(resource, new_limit);
+
 	return getrlimit(resource, old_limit);
 }
 #endif
