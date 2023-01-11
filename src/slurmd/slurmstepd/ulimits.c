@@ -86,6 +86,7 @@ int xprlimit(pid_t pid, int resource, const struct rlimit *new_limit,
 	if (new_limit)
 		return setrlimit(resource, new_limit);
 
+	xassert(old_limit);
 	return getrlimit(resource, old_limit);
 }
 #endif
