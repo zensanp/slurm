@@ -285,7 +285,8 @@ static char *_get_mail_user(const char *user_name, uid_t user_id)
 	return mail_user;
 }
 
-static int _job_fail_account(job_record_t *job_ptr, const char *func_name)
+static int _job_fail_account(job_record_t *job_ptr, const char *func_name,
+			     bool assoc_locked)
 {
 	int rc = 0; // Return number of pending jobs held
 
@@ -348,7 +349,7 @@ static int _job_fail_account(job_record_t *job_ptr, const char *func_name)
 		job_ptr->part_ptr_list = NULL;
 		job_ptr->qos_ptr = NULL;
 
-		acct_policy_remove_job_submit(job_ptr, false);
+		acct_policy_remove_job_submit(job_ptr, assoc_locked);
 
 		job_ptr->part_ptr = tmp_part;
 		job_ptr->part_ptr_list = tmp_part_list;
@@ -2610,7 +2611,7 @@ static int _load_job_state(buf_t *buffer, uint16_t protocol_version)
 				    accounting_enforce,
 				    &job_ptr->assoc_ptr, true) &&
 	    (accounting_enforce & ACCOUNTING_ENFORCE_ASSOCS)) {
-		_job_fail_account(job_ptr, __func__);
+		_job_fail_account(job_ptr, __func__, true);
 	} else {
 		job_ptr->assoc_id = assoc_rec.id;
 		info("Recovered %pJ Assoc=%u", job_ptr, job_ptr->assoc_id);
@@ -18047,7 +18048,8 @@ extern int job_hold_by_assoc_id(uint32_t assoc_id)
 		if (job_ptr->assoc_id != assoc_id)
 			continue;
 
-		cnt += _job_fail_account(job_ptr, __func__);
+		cnt += _job_fail_account(job_ptr, __func__,
+					 false);
 	}
 	list_iterator_destroy(job_iterator);
 	unlock_slurmctld(job_write_lock);
@@ -18177,7 +18179,7 @@ extern int send_jobs_to_accounting(void)
 				    accounting_enforce,
 				    &job_ptr->assoc_ptr, false) &&
 			    (accounting_enforce & ACCOUNTING_ENFORCE_ASSOCS)) {
-				_job_fail_account(job_ptr, __func__);
+				_job_fail_account(job_ptr, __func__, false);
 				continue;
 			} else
 				job_ptr->assoc_id = assoc_rec.id;
