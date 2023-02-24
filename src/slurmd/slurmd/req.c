@@ -42,7 +42,9 @@
 #include "config.h"
 
 #define _GNU_SOURCE	/* for setresuid() */
+#if !defined(__APPLE__) && !defined(__FreeBSD__) && !defined(__NetBSD__)
 #define _XOPEN_SOURCE 500 /* for ftw.h */
+#endif
 
 #include <ctype.h>
 #include <fcntl.h>
