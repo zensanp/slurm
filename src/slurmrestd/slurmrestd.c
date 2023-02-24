@@ -174,6 +174,10 @@ static void _parse_env(void)
 				fatal("Unexpected value in SLURMRESTD_SECURITY=%s",
 				      token);
 			}
+#if defined(__APPLE__) || defined(__FreeBSD__) || defined(__NetBSD__)
+			if (unshare_sysv || unshare_files)
+				error("Unshare options aren't available in this platform. Ignoring.");
+#endif
 			token = strtok_r(NULL, ",", &save_ptr);
 		}
 		xfree(toklist);
@@ -322,10 +326,14 @@ static void _lock_down(void)
 	if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) == -1)
 		fatal("Unable to disable new privileges: %m");
 #endif
+
+#if !defined(__APPLE__) && !defined(__FreeBSD__) && !defined(__NetBSD__)
 	if (unshare_sysv && unshare(CLONE_SYSVSEM))
 		fatal("Unable to unshare System V namespace: %m");
 	if (unshare_files && unshare(CLONE_FILES))
 		fatal("Unable to unshare file descriptors: %m");
+#endif
+
 	if (gid && setgroups(0, NULL))
 		fatal("Unable to drop supplementary groups: %m");
 	if (uid != 0 && (gid == 0))
