@@ -43,7 +43,9 @@
 #include <netdb.h>
 #include <sched.h>
 #include <signal.h>
+#if HAVE_SYS_PRCTL_H
 #include <sys/prctl.h>
+#endif
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -316,8 +318,10 @@ static void _lock_down(void)
 	if ((getuid() == SLURM_AUTH_NOBODY) || (getgid() == SLURM_AUTH_NOBODY))
 		fatal("slurmrestd must not be run as nobody");
 
+#if HAVE_SYS_PRCTL_H
 	if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) == -1)
 		fatal("Unable to disable new privileges: %m");
+#endif
 	if (unshare_sysv && unshare(CLONE_SYSVSEM))
 		fatal("Unable to unshare System V namespace: %m");
 	if (unshare_files && unshare(CLONE_FILES))
