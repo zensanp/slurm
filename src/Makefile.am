@@ -15,7 +15,6 @@ SUBDIRS =		\
 	scancel		\
 	scontrol	\
 	scrontab	\
-	scrun		\
 	sdiag		\
 	sinfo		\
 	slurmctld	\
@@ -30,3 +29,8 @@ SUBDIRS =		\
 	sstat		\
 	strigger	\
 	sview
+
+# Using this flag to check if it's a Linux compilation
+if WITH_CGROUP
+SUBDIRS += scrun
+endif
