@@ -656,7 +656,8 @@ extern void gres_select_filter_sock_core(gres_mc_data_t *mc_ptr,
 			if ((enforce_binding || first_pass) &&
 			    (avail_cores_per_sock[s] == 0))
 				continue;
-
+			log_flag(SELECT_TYPE, "Found %"PRIu64" usable GRES on socket %d",
+				 cnt_avail_sock, s);
 			cnt_avail_total += cnt_avail_sock;
 			if (!sufficient_gres && cnt_avail_sock) {
 				/*
