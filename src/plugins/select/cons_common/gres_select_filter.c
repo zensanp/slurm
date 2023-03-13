@@ -493,6 +493,8 @@ extern void gres_select_filter_sock_core(gres_mc_data_t *mc_ptr,
 		int min_core_cnt, req_cores, rem_sockets, req_sock_cnt = 0;
 		int threads_per_core;
 
+		sock_gres->sock_gres_limit = xcalloc(sockets, sizeof(uint64_t));
+
 		if (mc_ptr->threads_per_core)
 			threads_per_core =
 				MIN(cpus_per_core,
@@ -659,6 +661,7 @@ extern void gres_select_filter_sock_core(gres_mc_data_t *mc_ptr,
 			log_flag(SELECT_TYPE, "Found %"PRIu64" usable GRES on socket %d",
 				 cnt_avail_sock, s);
 			cnt_avail_total += cnt_avail_sock;
+			sock_gres->sock_gres_limit[s] = cnt_avail_sock;
 			if (!sufficient_gres && cnt_avail_sock) {
 				/*
 				 * Mark the socked required only if it
@@ -1455,6 +1458,7 @@ static int _set_job_bits1(struct job_resources *job_res, int node_inx,
 	 */
 	for (s = -1;	/* Socket == - 1 if GRES avail from any socket */
 	     ((s < sock_cnt) && (alloc_gres_cnt < pick_gres)); s++) {
+		uint64_t alloc_gres_socket_cnt = 0;
 		if ((s >= 0) && !cores_on_sock[s])
 			continue;
 		for (g = 0; ((g < gres_cnt) && (alloc_gres_cnt < pick_gres));
@@ -1466,7 +1470,9 @@ static int _set_job_bits1(struct job_resources *job_res, int node_inx,
 			if ((s >= 0) &&
 			    (!sock_gres->bits_by_sock ||
 			     !sock_gres->bits_by_sock[s] ||
-			     !bit_test(sock_gres->bits_by_sock[s], g)))
+			     !bit_test(sock_gres->bits_by_sock[s], g) ||
+			     (alloc_gres_socket_cnt >=
+			      sock_gres->sock_gres_limit[s])))
 				continue;   /* GRES not on this socket */
 			if (bit_test(gres_ns->gres_bit_alloc, g) ||
 			    bit_test(gres_js->gres_bit_select[node_inx], g))
@@ -1475,6 +1481,7 @@ static int _set_job_bits1(struct job_resources *job_res, int node_inx,
 			gres_js->gres_cnt_node_select[node_inx]++;
 			alloc_gres_cnt++;
 			gres_js->total_gres++;
+			alloc_gres_socket_cnt++;
 		}
 	}
 	if (alloc_gres_cnt == 0) {
