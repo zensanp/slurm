@@ -401,9 +401,8 @@ static int _is_node_busy(part_res_record_t *p_ptr, uint32_t node_i,
 			 int sharing_only, part_record_t *my_part_ptr,
 			 bool qos_preemptor)
 {
-	uint32_t r, c, core_begin, core_end;
+	uint32_t r;
 	uint16_t num_rows;
-	bitstr_t *use_row_bitmap = NULL;
 
 	for (; p_ptr; p_ptr = p_ptr->next) {
 		num_rows = p_ptr->num_rows;
@@ -422,22 +421,23 @@ static int _is_node_busy(part_res_record_t *p_ptr, uint32_t node_i,
 			if (is_cons_tres) {
 				if (!p_ptr->row[r].row_bitmap[node_i])
 					continue;
-				use_row_bitmap =
-					p_ptr->row[r].row_bitmap[node_i];
-				core_begin = 0;
-				core_end = bit_size(
-					p_ptr->row[r].row_bitmap[node_i]);
+				if (bit_ffs(p_ptr->row[r].row_bitmap[node_i]) >
+				    -1)
+					return 1;
 			} else {
+				uint32_t c, core_begin, core_end;
+				bitstr_t *use_row_bitmap = NULL;
+
 				if (!*p_ptr->row[r].row_bitmap)
 					continue;
 				use_row_bitmap = *p_ptr->row[r].row_bitmap;
 				core_begin = cr_get_coremap_offset(node_i);
-				core_end = cr_get_coremap_offset(node_i+1);
-			}
+				core_end = cr_get_coremap_offset(node_i + 1);
 
-			for (c = core_begin; c < core_end; c++)
-				if (bit_test(use_row_bitmap, c))
-					return 1;
+				for (c = core_begin; c < core_end; c++)
+					if (bit_test(use_row_bitmap, c))
+						return 1;
+			}
 		}
 	}
 	return 0;
