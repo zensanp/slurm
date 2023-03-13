@@ -377,6 +377,7 @@ typedef struct sock_gres {	/* GRES availability by socket */
 	gres_state_t *gres_state_job; /* Pointer to job info, for limits */
 	gres_state_t *gres_state_node; /* Pointer to node info, for state */
 	uint64_t max_node_gres;	/* Maximum GRES permitted on this node */
+	uint64_t node_gres_limit; /* Maximum GRES on the node this pass */
 	int sock_cnt;		/* Socket count, size of bits_by_sock and
 				 * cnt_by_sock arrays */
 	uint64_t total_cnt;	/* Total GRES count of this name & type */

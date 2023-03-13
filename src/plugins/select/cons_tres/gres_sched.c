@@ -577,7 +577,6 @@ extern void gres_sched_add(List job_gres_list, List sock_gres_list,
 	gres_state_t *gres_state_job;
 	gres_job_state_t *gres_js;
 	sock_gres_t *sock_data;
-	uint64_t gres_limit;
 	uint16_t gres_cpus = 0;
 
 	if (!job_gres_list || !(*avail_cpus))
@@ -593,14 +592,8 @@ extern void gres_sched_add(List job_gres_list, List sock_gres_list,
 					    gres_state_job);
 		if (!sock_data)		/* None of this GRES available */
 			continue;
-		if (gres_js->cpus_per_gres) {
-			gres_limit = *avail_cpus / gres_js->cpus_per_gres;
-			gres_limit = MIN(gres_limit, sock_data->total_cnt);
-			gres_cpus = MAX(gres_cpus,
-					gres_limit * gres_js->cpus_per_gres);
-		} else
-			gres_limit = sock_data->total_cnt;
-		gres_js->total_gres += gres_limit;
+
+		gres_js->total_gres += sock_data->node_gres_limit;
 	}
 	list_iterator_destroy(iter);
 	if (gres_cpus)

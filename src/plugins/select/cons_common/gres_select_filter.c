@@ -690,6 +690,8 @@ extern void gres_select_filter_sock_core(gres_mc_data_t *mc_ptr,
 				max_gres = *avail_cpus / cpus_per_gres;
 			cnt_avail_total = MIN(cnt_avail_total, max_gres);
 		}
+		sock_gres->node_gres_limit = cnt_avail_total;
+
 		if ((cnt_avail_total == 0) ||
 		    (gres_js->gres_per_node > cnt_avail_total) ||
 		    (gres_js->gres_per_task > cnt_avail_total)) {
@@ -1397,7 +1399,6 @@ static int _set_job_bits1(struct job_resources *job_res, int node_inx,
 	int *cores_on_sock = NULL, alloc_gres_cnt = 0;
 	int max_gres, pick_gres, total_cores = 0;
 	int fini = 0;
-	uint16_t cpus_per_gres = 0;
 
 	gres_js = sock_gres->gres_state_job->gres_data;
 	gres_ns = sock_gres->gres_state_node->gres_data;
@@ -1438,18 +1439,10 @@ static int _set_job_bits1(struct job_resources *job_res, int node_inx,
 			}
 		}
 	}
-	if (gres_js->cpus_per_gres) {
-		cpus_per_gres = gres_js->cpus_per_gres;
-	} else if (gres_js->ntasks_per_gres &&
-		   (gres_js->ntasks_per_gres != NO_VAL16)) {
-		cpus_per_gres = gres_js->ntasks_per_gres *
-			tres_mc_ptr->cpus_per_task;
-	}
-	if (cpus_per_gres) {
-		max_gres = MIN(max_gres,
-			       ((total_cores * cpus_per_core) /
-				cpus_per_gres));
-	}
+
+	if (sock_gres->node_gres_limit)
+		max_gres = MIN(max_gres, sock_gres->node_gres_limit);
+
 	if ((max_gres > 1) && (gres_ns->link_len == gres_cnt))
 		pick_gres  = NO_VAL16;
 	else
