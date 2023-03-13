@@ -825,6 +825,7 @@ static int _job_test(job_record_t *job_ptr, bitstr_t *node_bitmap,
 	uint32_t next_job_size = 0;
 
 	free_job_resources(&job_ptr->job_resrcs);
+	part_data_rebuild_rows(cr_part_ptr);
 
 	if (mode == SELECT_MODE_TEST_ONLY)
 		test_only = true;

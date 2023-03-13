@@ -1533,8 +1533,11 @@ extern int select_p_job_resized(job_record_t *job_ptr, node_record_t *node_ptr)
 	}
 
 
-	/* some node of job removed from core-bitmap, so rebuild core bitmaps */
-	part_data_build_row_bitmaps(p_ptr, NULL);
+	/*
+	 * some node of job removed from core-bitmap, so lets know _job_test()
+	 * to do part_data_build_row_bitmaps(p_ptr, NULL);
+	 */
+	p_ptr->rebuild_rows = true;
 
 	/*
 	 * Adjust the node_state of the node removed from this job.
