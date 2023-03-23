@@ -1034,6 +1034,8 @@ static void *_thread_per_group_rpc(void *args)
 					ping_resp->cpu_load);
 			reset_node_free_mem(ret_data_info->node_name,
 					    ping_resp->free_mem);
+			reset_node_sysinfo(ret_data_info->node_name, ping_resp);
+			ret_data_info->data = NULL; /* Don't free */
 			unlock_slurmctld(node_write_lock);
 		}
 		/* SPECIAL CASE: Mark node as IDLE if job already complete */

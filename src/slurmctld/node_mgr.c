@@ -4579,6 +4579,26 @@ extern void reset_node_free_mem(char *node_name, uint64_t free_mem)
 #endif
 }
 
+/* Reset a node's sysinfo value */
+extern void reset_node_sysinfo(char *node_name, ping_slurmd_resp_msg_t *msg)
+{
+#ifdef HAVE_FRONT_END
+	return;
+#else
+	node_record_t *node_ptr;
+
+	node_ptr = find_node_record(node_name);
+	if (node_ptr) {
+		time_t now = time(NULL);
+		slurm_free_ping_slurmd_resp(node_ptr->sysinfo);
+		node_ptr->sysinfo = msg;
+		node_ptr->sysinfo_time = now;
+		last_node_update = now;
+	} else
+		error("%s: unable to find node %s", __func__, node_name);
+#endif
+}
+
 
 /*
  * Check for node timed events

@@ -167,6 +167,8 @@ struct node_record {
 	uint16_t run_job_cnt;		/* count of jobs running on node */
 	uint64_t sched_weight;		/* Node's weight for scheduling
 					 * purposes. For cons_tres use */
+	time_t sysinfo_time; /* Time when sysinfo last set */
+	ping_slurmd_resp_msg_t *sysinfo; /* sysinfo returned by last ping */
 	dynamic_plugin_data_t *select_nodeinfo; /* opaque data structure,
 						 * use select_g_get_nodeinfo()
 						 * to access contents */

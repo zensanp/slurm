@@ -2273,6 +2273,9 @@ extern void reset_node_load(char *node_name, uint32_t cpu_load);
 /* Reset a node's free memory value */
 extern void reset_node_free_mem(char *node_name, uint64_t free_mem);
 
+/* Reset a node sysinfo results*/
+extern void reset_node_sysinfo(char *node_name, ping_slurmd_resp_msg_t *msg);
+
 /* Reset all scheduling statistics
  * level IN - clear backfilled_jobs count if set */
 extern void reset_stats(int level);

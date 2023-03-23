@@ -778,7 +778,15 @@ static void _init_node_record(node_record_t *node_ptr,
 		node_ptr->select_nodeinfo = select_g_select_nodeinfo_alloc();
 	node_ptr->suspend_time = NO_VAL;
 	node_ptr->suspend_timeout = NO_VAL16;
-
+	node_ptr->sysinfo = xmalloc(sizeof(*node_ptr->sysinfo));
+	for (int i = 0; i < 3; i++)
+		node_ptr->sysinfo->loads[i] = NO_VAL;
+	node_ptr->sysinfo->totalram = NO_VAL64;
+	node_ptr->sysinfo->freeram = NO_VAL64;
+	node_ptr->sysinfo->sharedram = NO_VAL64;
+	node_ptr->sysinfo->bufferram = NO_VAL64;
+	node_ptr->sysinfo->totalswap = NO_VAL64;
+	node_ptr->sysinfo->freeswap = NO_VAL64;
 	node_ptr->config_ptr = config_ptr;
 	node_ptr->boards = config_ptr->boards;
 	node_ptr->core_spec_cnt = config_ptr->core_spec_cnt;
@@ -1261,6 +1269,8 @@ extern void purge_node_rec(node_record_t *node_ptr)
 	xfree(node_ptr->features);
 	xfree(node_ptr->features_act);
 	xfree(node_ptr->gres);
+	slurm_free_ping_slurmd_resp(node_ptr->sysinfo);
+	node_ptr->sysinfo = NULL;
 	FREE_NULL_LIST(node_ptr->gres_list);
 	xfree(node_ptr->mcs_label);
 	xfree(node_ptr->name);
