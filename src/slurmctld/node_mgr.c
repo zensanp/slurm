@@ -60,6 +60,7 @@
 #include "src/common/pack.h"
 #include "src/common/parse_time.h"
 #include "src/common/read_config.h"
+#include "src/common/slurm_protocol_pack.h"
 #include "src/common/slurm_resource_info.h"
 #include "src/common/timers.h"
 #include "src/common/xassert.h"
@@ -1220,6 +1221,8 @@ static void _pack_node(node_record_t *dump_node_ptr, buf_t *buffer,
 
 		packstr(dump_node_ptr->tres_fmt_str, buffer);
 		packstr(dump_node_ptr->resv_name, buffer);
+		pack_ping_slurmd_resp(dump_node_ptr->sysinfo, buffer,
+				      protocol_version);
 	} else if (protocol_version >= SLURM_23_02_PROTOCOL_VERSION) {
 		packstr(dump_node_ptr->name, buffer);
 		packstr(dump_node_ptr->node_hostname, buffer);

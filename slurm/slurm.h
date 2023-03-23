@@ -114,6 +114,11 @@ typedef struct allocation_msg_thread allocation_msg_thread_t;
 typedef struct sbcast_cred sbcast_cred_t;		/* opaque data type */
 #endif
 
+#ifndef __ping_slurmd_resp_msg_t_defined
+#  define  __ping_slurmd_resp_msg_t
+typedef struct ping_slurmd_resp_msg ping_slurmd_resp_msg_t;
+#endif
+
 /*****************************************************************************\
  *	DEFINITIONS FOR POSIX VALUES
 \*****************************************************************************/
@@ -2292,6 +2297,7 @@ typedef struct node_info {
 						  * slurm_get_select_nodeinfo()
 						  * to access contents */
 	time_t slurmd_start_time;/* time of slurmd startup */
+	ping_slurmd_resp_msg_t *sysinfo /* sysinfo results */;
 	uint16_t sockets;       /* total number of sockets per node */
 	uint16_t threads;       /* number of threads per core */
 	uint32_t tmp_disk;	/* configured MB of total disk in TMP_FS */

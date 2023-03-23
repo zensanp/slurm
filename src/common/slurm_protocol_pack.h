@@ -101,6 +101,8 @@ extern int slurm_pack_list(List send_list,
 extern int slurm_pack_list_until(List send_list, pack_function_t pack_function,
 				 buf_t *buffer, uint32_t max_buf_size,
 				 uint16_t protocol_version);
+extern void pack_ping_slurmd_resp(ping_slurmd_resp_msg_t *msg,
+				   buf_t *buffer, uint16_t protocol_version);
 extern int slurm_unpack_list(List *recv_list,
 			     int (*unpack_function) (void **object,
 						     uint16_t protocol_version,

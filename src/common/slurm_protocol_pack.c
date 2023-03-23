@@ -98,6 +98,9 @@ static void _pack_ret_list(List ret_list, uint16_t size_val, buf_t *buffer,
 static int _unpack_ret_list(List *ret_list, uint16_t size_val, buf_t *buffer,
 			    uint16_t protocol_version);
 
+static int _unpack_ping_slurmd_resp(ping_slurmd_resp_msg_t **msg_ptr,
+				    buf_t *buffer, uint16_t protocol_version);
+
 /* pack_header
  * packs a slurm protocol header that precedes every slurm message
  * IN header - the header structure to pack
@@ -1675,6 +1678,8 @@ _unpack_node_info_members(node_info_t * node, buf_t *buffer,
 
 		safe_unpackstr(&node->tres_fmt_str, buffer);
 		safe_unpackstr(&node->resv_name, buffer);
+		_unpack_ping_slurmd_resp(&node->sysinfo, buffer,
+					 protocol_version);
 	} else if (protocol_version >= SLURM_23_02_PROTOCOL_VERSION) {
 		safe_unpackstr(&node->name, buffer);
 		safe_unpackstr(&node->node_hostname, buffer);
@@ -8881,7 +8886,7 @@ unpack_error:
 	return SLURM_ERROR;
 }
 
-static void _pack_ping_slurmd_resp(ping_slurmd_resp_msg_t *msg,
+extern void pack_ping_slurmd_resp(ping_slurmd_resp_msg_t *msg,
 				   buf_t *buffer, uint16_t protocol_version)
 {
 	xassert(msg);
@@ -11132,7 +11137,7 @@ pack_msg(slurm_msg_t const *msg, buf_t *buffer)
 		break;
 
 	case RESPONSE_PING_SLURMD:
-		_pack_ping_slurmd_resp((ping_slurmd_resp_msg_t *)msg->data,
+		pack_ping_slurmd_resp((ping_slurmd_resp_msg_t *)msg->data,
 				       buffer, msg->protocol_version);
 		break;
 	case REQUEST_LICENSE_INFO:
