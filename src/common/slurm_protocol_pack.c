@@ -8835,6 +8835,7 @@ static int _unpack_ping_slurmd_resp(ping_slurmd_resp_msg_t **msg_ptr,
 
 	xassert(msg_ptr);
 	msg = xmalloc(sizeof(ping_slurmd_resp_msg_t));
+	msg->loads = xcalloc(3, sizeof(uint32_t));
 	*msg_ptr = msg;
 
 	if (protocol_version >= SLURM_23_11_PROTOCOL_VERSION) {

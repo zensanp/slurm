@@ -1270,6 +1270,14 @@ typedef struct suspend_int_msg {
 typedef struct ping_slurmd_resp_msg {
 	uint32_t cpu_load;	/* CPU load * 100 */
 	uint64_t free_mem;	/* Free memory in MiB */
+	uint32_t loads[3]; /* CPU load * 100 */
+	uint64_t totalram; /* Following sysinfo memory returend fields in MiB */
+	uint64_t freeram;
+	uint64_t sharedram;
+	uint64_t bufferram;
+	uint64_t totalswap;
+	uint64_t freeswap;
+
 } ping_slurmd_resp_msg_t;
 
 typedef struct license_info_request_msg {
