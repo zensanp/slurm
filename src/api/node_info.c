@@ -486,6 +486,34 @@ char *slurm_sprint_node_table(node_info_t *node_ptr, int one_liner)
 		xstrfmtcat(out, "ReservationName=%s", node_ptr->resv_name);
 	}
 
+	/* TODO: Maybe we should add an option to show those details? */
+	if (node_ptr->sysinfo) {
+		xstrcat(out, line_end);
+		if (node_ptr->sysinfo->loads[0] != NO_VAL) {
+			xstrfmtcat(out, "Load1=%.2f Load5=%.2f Load15=%.2f",
+				   (node_ptr->sysinfo->loads[0] / 100.0),
+				   (node_ptr->sysinfo->loads[1] / 100.0),
+				   (node_ptr->sysinfo->loads[2] / 100.0));
+
+			xstrcat(out, line_end);
+			xstrfmtcat(out,"TotalRAM=%"PRIu64" FreeRAM=%"PRIu64" SharedRAM=%"PRIu64" BufferRAM=%"PRIu64,
+				   node_ptr->sysinfo->totalram,
+				   node_ptr->sysinfo->freeram,
+				   node_ptr->sysinfo->sharedram,
+				   node_ptr->sysinfo->bufferram);
+			xstrcat(out, line_end);
+			xstrfmtcat(out,"TotalSWAP=%"PRIu64" FreeSWAP=%"PRIu64,
+				   node_ptr->sysinfo->totalswap,
+				   node_ptr->sysinfo->freeswap);
+		} else {
+			xstrfmtcat(out, "Load1=N/A Load5=N/A Load15=N/A");
+			xstrcat(out, line_end);
+			xstrfmtcat(out,"TotalRAM=N/A FreeRAM=N/A SharedRAM=N/A BufferRAM=N/A");
+			xstrcat(out, line_end);
+			xstrfmtcat(out,"TotalSWAP=N/A FreeSWAP=N/A");
+		}
+	}
+
 	if (one_liner)
 		xstrcat(out, "\n");
 	else
