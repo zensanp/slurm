@@ -1573,6 +1573,7 @@ extern void slurm_free_node_registration_status_msg(
 		xfree(msg->node_name);
 		xfree(msg->os);
 		xfree(msg->step_id);
+		xfree(msg->sysinfo);
 		xfree(msg->version);
 		xfree(msg);
 	}

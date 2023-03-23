@@ -1346,6 +1346,7 @@ typedef struct slurm_node_registration_status_msg {
 	uint32_t status;	/* node status code, same as return codes */
 	slurm_step_id_t *step_id;	/* IDs of running job steps (if any) */
 	uint16_t sockets;
+	ping_slurmd_resp_msg_t *sysinfo;
 	uint16_t threads;
 	time_t timestamp;
 	uint32_t tmp_disk;

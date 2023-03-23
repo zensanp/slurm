@@ -1058,6 +1058,7 @@ _pack_node_registration_status_msg(slurm_node_registration_status_msg_t *
 		pack32(msg->cpu_load, buffer);
 		pack64(msg->free_mem, buffer);
 
+		pack_ping_slurmd_resp(msg->sysinfo, buffer, protocol_version);
 		pack32(msg->job_count, buffer);
 		for (i = 0; i < msg->job_count; i++) {
 			pack_step_id(&msg->step_id[i], buffer,
@@ -1161,6 +1162,8 @@ _unpack_node_registration_status_msg(slurm_node_registration_status_msg_t
 		safe_unpack32(&node_reg_ptr->hash_val, buffer);
 		safe_unpack32(&node_reg_ptr->cpu_load, buffer);
 		safe_unpack64(&node_reg_ptr->free_mem, buffer);
+		_unpack_ping_slurmd_resp(&node_reg_ptr->sysinfo, buffer,
+					 protocol_version);
 
 		safe_unpack32(&node_reg_ptr->job_count, buffer);
 		if (node_reg_ptr->job_count > NO_VAL)

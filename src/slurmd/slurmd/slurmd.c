@@ -750,6 +750,7 @@ extern int send_registration_msg(uint32_t status)
 	slurm_msg_t req, resp_msg;
 	slurm_node_registration_status_msg_t *msg =
 		xmalloc(sizeof(slurm_node_registration_status_msg_t));
+	msg->sysinfo  = xmalloc(sizeof(ping_slurmd_resp_msg_t));
 
 	slurm_msg_t_init(&req);
 	slurm_msg_t_init(&resp_msg);
@@ -822,6 +823,7 @@ _fill_registration_msg(slurm_node_registration_status_msg_t *msg)
 	msg->hash_val = slurm_conf.hash_val;
 	get_cpu_load(&msg->cpu_load);
 	get_free_mem(&msg->free_mem);
+	get_sysinfo(msg->sysinfo);
 
 	gres_info = init_buf(1024);
 	if (gres_node_config_pack(gres_info) != SLURM_SUCCESS)
