@@ -270,3 +270,50 @@ extern int get_free_mem(uint64_t *free_mem)
 #endif
 	return 0;
 }
+
+static uint64_t _mem_to_mb(unsigned long sysinfo_mem,
+			   unsigned long sysinfo_mem_unit)
+{
+	return ((uint64_t) sysinfo_mem) * sysinfo_mem_unit / (1024 * 1024);
+}
+extern int get_sysinfo(ping_slurmd_resp_msg_t *slurm_sysinfo)
+{
+	struct sysinfo info;
+	float shift_float = (float) (1 << SI_LOAD_SHIFT);
+	xassert(slurm_sysinfo);
+#if defined(__APPLE__) || defined(__NetBSD__) || defined(__FreeBSD__)
+	/*
+	 * Not sure how to get CPU load on above systems.
+	 * Perhaps some method below works.
+	 */
+	for (int i = 0; i < 3; i++)
+		slurm_sysinfo->loads[i] = NO_VAL;
+	slurm_sysinfo->totalram = NO_VAL64;
+	slurm_sysinfo->freeram = NO_VAL64;
+	slurm_sysinfo->sharedram = NO_VAL64;
+	slurm_sysinfo->bufferram = NO_VAL64;
+	slurm_sysinfo->totalswap = NO_VAL64;
+	slurm_sysinfo->freeswap = NO_VAL64;
+#else
+	if (sysinfo(&info) < 0) {
+		for (int i = 0; i < 3; i++)
+			slurm_sysinfo->loads[i] = NO_VAL;
+		slurm_sysinfo->totalram = NO_VAL64;
+		slurm_sysinfo->freeram = NO_VAL64;
+		slurm_sysinfo->sharedram = NO_VAL64;
+		slurm_sysinfo->bufferram = NO_VAL64;
+		slurm_sysinfo->totalswap = NO_VAL64;
+		slurm_sysinfo->freeswap = NO_VAL64;
+		return errno;
+	}
+	for (int i = 0; i<3; i++)
+		slurm_sysinfo->loads[i] = (info.loads[i] / shift_float) * 100.0;
+	slurm_sysinfo->totalram = _mem_to_mb(info.totalram, info.mem_unit);
+	slurm_sysinfo->freeram = _mem_to_mb(info.freeram, info.mem_unit);
+	slurm_sysinfo->sharedram = _mem_to_mb(info.sharedram, info.mem_unit);
+	slurm_sysinfo->bufferram = _mem_to_mb(info.bufferram, info.mem_unit);
+	slurm_sysinfo->totalswap = _mem_to_mb(info.totalswap, info.mem_unit);
+	slurm_sysinfo->freeswap = _mem_to_mb(info.freeswap, info.mem_unit);
+#endif
+	return 0;
+}
