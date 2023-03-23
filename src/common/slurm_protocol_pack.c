@@ -1584,7 +1584,7 @@ static int _unpack_node_info_msg(node_info_msg_t **msg, buf_t *buffer,
 		safe_xcalloc(tmp_ptr->node_array, tmp_ptr->record_count,
 			     sizeof(node_info_t));
 
-		/* load individual job info */
+		/* load individual node info */
 		for (i = 0; i < tmp_ptr->record_count; i++) {
 			if (_unpack_node_info_members(&tmp_ptr->node_array[i],
 						      buffer,
