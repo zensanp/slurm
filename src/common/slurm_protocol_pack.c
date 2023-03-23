@@ -8822,6 +8822,13 @@ static void _pack_ping_slurmd_resp(ping_slurmd_resp_msg_t *msg,
 	if (protocol_version >= SLURM_23_11_PROTOCOL_VERSION) {
 		pack32(msg->cpu_load, buffer);
 		pack64(msg->free_mem, buffer);
+		pack32_array(msg->loads, 3, buffer);
+		pack64(msg->totalram, buffer);
+		pack64(msg->freeram, buffer);
+		pack64(msg->sharedram, buffer);
+		pack64(msg->bufferram, buffer);
+		pack64(msg->totalswap, buffer);
+		pack64(msg->freeswap, buffer);
 	} else if (protocol_version >= SLURM_MIN_PROTOCOL_VERSION) {
 		pack32(msg->cpu_load, buffer);
 		pack64(msg->free_mem, buffer);
@@ -8831,16 +8838,29 @@ static void _pack_ping_slurmd_resp(ping_slurmd_resp_msg_t *msg,
 static int _unpack_ping_slurmd_resp(ping_slurmd_resp_msg_t **msg_ptr,
 				    buf_t *buffer, uint16_t protocol_version)
 {
+	uint32_t tmp;
 	ping_slurmd_resp_msg_t *msg;
 
 	xassert(msg_ptr);
 	msg = xmalloc(sizeof(ping_slurmd_resp_msg_t));
-	msg->loads = xcalloc(3, sizeof(uint32_t));
 	*msg_ptr = msg;
 
 	if (protocol_version >= SLURM_23_11_PROTOCOL_VERSION) {
+		uint32_t *array;
+
 		safe_unpack32(&msg->cpu_load, buffer);
 		safe_unpack64(&msg->free_mem, buffer);
+		safe_unpack32_array(&array, &tmp, buffer);
+		xassert(tmp == 3);
+		for (int i = 0; i < 3; i++)
+			msg->loads[i] = array[i];
+		xfree(array);
+		safe_unpack64(&msg->totalram, buffer);
+		safe_unpack64(&msg->freeram, buffer);
+		safe_unpack64(&msg->sharedram, buffer);
+		safe_unpack64(&msg->bufferram, buffer);
+		safe_unpack64(&msg->totalswap, buffer);
+		safe_unpack64(&msg->freeswap, buffer);
 	} else if (protocol_version >= SLURM_MIN_PROTOCOL_VERSION) {
 		safe_unpack32(&msg->cpu_load, buffer);
 		safe_unpack64(&msg->free_mem, buffer);
