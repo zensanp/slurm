@@ -1105,6 +1105,7 @@ skip_auth:
 	if ((header.body_length > remaining_buf(buffer)) ||
 	    _check_hash(buffer, &header, msg, auth_cred) ||
 	    (unpack_msg(msg, buffer) != SLURM_SUCCESS)) {
+		slurm_free_msg_data(msg->msg_type, msg->data);
 		rc = ESLURM_PROTOCOL_INCOMPLETE_PACKET;
 		auth_g_destroy(auth_cred);
 		goto total_return;
