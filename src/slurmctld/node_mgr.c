@@ -1248,8 +1248,8 @@ static void _pack_node(node_record_t *dump_node_ptr, buf_t *buffer,
 		packstr(dump_node_ptr->cpu_spec_list, buffer);
 		pack16(dump_node_ptr->cpus_efctv, buffer);
 
-		pack32(dump_node_ptr->cpu_load, buffer);
-		pack64(dump_node_ptr->free_mem, buffer);
+		pack32(dump_node_ptr->sysinfo->loads[1], buffer);
+		pack64(dump_node_ptr->sysinfo->freeram, buffer);
 		pack32(dump_node_ptr->config_ptr->weight, buffer);
 		pack32(dump_node_ptr->reason_uid, buffer);
 
@@ -1322,8 +1322,8 @@ static void _pack_node(node_record_t *dump_node_ptr, buf_t *buffer,
 		packstr(dump_node_ptr->cpu_spec_list, buffer);
 		pack16(dump_node_ptr->cpus_efctv, buffer);
 
-		pack32(dump_node_ptr->cpu_load, buffer);
-		pack64(dump_node_ptr->free_mem, buffer);
+		pack32(dump_node_ptr->sysinfo->loads[1], buffer);
+		pack64(dump_node_ptr->sysinfo->freeram, buffer);
 		pack32(dump_node_ptr->config_ptr->weight, buffer);
 		pack32(dump_node_ptr->reason_uid, buffer);
 

@@ -114,7 +114,7 @@ static int _dump_node(data_t *p, node_info_t *node)
 	data_set_int(data_key_set(d, "cores"), node->cores);
 	/* core_spec_cnt intentionally omitted */
 	data_set_int(data_key_set(d, "cpu_binding"), node->cpu_bind);
-	data_set_int(data_key_set(d, "cpu_load"), node->cpu_load);
+	data_set_int(data_key_set(d, "cpu_load"), node->sysinfo->loads[1]);
 	data_set_string(data_key_set(d, "extra"), node->extra);
 	data_set_int(data_key_set(d, "free_memory"), node->sysinfo->freeram);
 	data_set_int(data_key_set(d, "cpus"), node->cpus);

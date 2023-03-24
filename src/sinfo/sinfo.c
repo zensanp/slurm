@@ -930,10 +930,10 @@ static bool _match_node_data(sinfo_data_t *sinfo_ptr, node_info_t *node_ptr)
 	    (node_ptr->weight      != sinfo_ptr->min_weight))
 		return false;
 	if (params.match_flags.cpu_load_flag &&
-	    (node_ptr->cpu_load        != sinfo_ptr->min_cpu_load))
+	    (node_ptr->sysinfo->loads[1] != sinfo_ptr->min_cpu_load))
 		return false;
 	if (params.match_flags.free_mem_flag &&
-	    (node_ptr->free_mem        != sinfo_ptr->min_free_mem))
+	    (node_ptr->sysinfo->freeram != sinfo_ptr->min_free_mem))
 		return false;
 	if (params.match_flags.port_flag &&
 	    (node_ptr->port != sinfo_ptr->port))
@@ -1062,10 +1062,10 @@ static void _update_sinfo(sinfo_data_t *sinfo_ptr, node_info_t *node_ptr)
 		sinfo_ptr->port       = node_ptr->port;
 		sinfo_ptr->min_weight = node_ptr->weight;
 		sinfo_ptr->max_weight = node_ptr->weight;
-		sinfo_ptr->min_cpu_load = node_ptr->cpu_load;
-		sinfo_ptr->max_cpu_load = node_ptr->cpu_load;
-		sinfo_ptr->min_free_mem = node_ptr->free_mem;
-		sinfo_ptr->max_free_mem = node_ptr->free_mem;
+		sinfo_ptr->min_cpu_load = node_ptr->sysinfo->loads[1];
+		sinfo_ptr->max_cpu_load = node_ptr->sysinfo->loads[1];
+		sinfo_ptr->min_free_mem = node_ptr->sysinfo->freeram;
+		sinfo_ptr->max_free_mem = node_ptr->sysinfo->freeram;
 		sinfo_ptr->max_cpus_per_node = sinfo_ptr->part_info->
 					       max_cpus_per_node;
 		sinfo_ptr->version    = node_ptr->version;
@@ -1109,15 +1109,15 @@ static void _update_sinfo(sinfo_data_t *sinfo_ptr, node_info_t *node_ptr)
 		if (sinfo_ptr->max_weight < node_ptr->weight)
 			sinfo_ptr->max_weight = node_ptr->weight;
 
-		if (sinfo_ptr->min_cpu_load > node_ptr->cpu_load)
-			sinfo_ptr->min_cpu_load = node_ptr->cpu_load;
-		if (sinfo_ptr->max_cpu_load < node_ptr->cpu_load)
-			sinfo_ptr->max_cpu_load = node_ptr->cpu_load;
+		if (sinfo_ptr->min_cpu_load > node_ptr->sysinfo->loads[1])
+			sinfo_ptr->min_cpu_load = node_ptr->sysinfo->loads[1];
+		if (sinfo_ptr->max_cpu_load < node_ptr->sysinfo->loads[1])
+			sinfo_ptr->max_cpu_load = node_ptr->sysinfo->loads[1];
 
-		if (sinfo_ptr->min_free_mem > node_ptr->free_mem)
-			sinfo_ptr->min_free_mem = node_ptr->free_mem;
-		if (sinfo_ptr->max_free_mem < node_ptr->free_mem)
-			sinfo_ptr->max_free_mem = node_ptr->free_mem;
+		if (sinfo_ptr->min_free_mem > node_ptr->sysinfo->freeram)
+			sinfo_ptr->min_free_mem = node_ptr->sysinfo->freeram;
+		if (sinfo_ptr->max_free_mem < node_ptr->sysinfo->freeram)
+			sinfo_ptr->max_free_mem = node_ptr->sysinfo->freeram;
 	}
 
 	if (hostlist_find(sinfo_ptr->nodes, node_ptr->name) == -1)

@@ -1096,8 +1096,8 @@ _pack_node_registration_status_msg(slurm_node_registration_status_msg_t *
 		pack32(msg->tmp_disk, buffer);
 		pack32(msg->up_time, buffer);
 		pack32(msg->hash_val, buffer);
-		pack32(msg->cpu_load, buffer);
-		pack64(msg->free_mem, buffer);
+		pack32(msg->sysinfo->loads[1], buffer);
+		pack64(msg->sysinfo->freeram, buffer);
 
 		pack32(msg->job_count, buffer);
 		for (i = 0; i < msg->job_count; i++) {
@@ -1213,8 +1213,8 @@ _unpack_node_registration_status_msg(slurm_node_registration_status_msg_t
 		safe_unpack32(&node_reg_ptr->tmp_disk, buffer);
 		safe_unpack32(&node_reg_ptr->up_time, buffer);
 		safe_unpack32(&node_reg_ptr->hash_val, buffer);
-		safe_unpack32(&node_reg_ptr->cpu_load, buffer);
-		safe_unpack64(&node_reg_ptr->free_mem, buffer);
+		safe_unpack32(&node_reg_ptr->sysinfo->loads[1], buffer);
+		safe_unpack64(&node_reg_ptr->sysinfo->freeram, buffer);
 
 		safe_unpack32(&node_reg_ptr->job_count, buffer);
 		if (node_reg_ptr->job_count > NO_VAL)
@@ -1704,8 +1704,8 @@ _unpack_node_info_members(node_info_t * node, buf_t *buffer,
 		safe_unpackstr(&node->cpu_spec_list, buffer);
 		safe_unpack16(&node->cpus_efctv, buffer);
 
-		safe_unpack32(&node->cpu_load, buffer);
-		safe_unpack64(&node->free_mem, buffer);
+		safe_unpack32(&node->sysinfo->loads[1], buffer);
+		safe_unpack64(&node->sysinfo->freeram, buffer);
 		safe_unpack32(&node->weight, buffer);
 		safe_unpack32(&node->reason_uid, buffer);
 
@@ -1771,8 +1771,8 @@ _unpack_node_info_members(node_info_t * node, buf_t *buffer,
 		safe_unpackstr(&node->cpu_spec_list, buffer);
 		safe_unpack16(&node->cpus_efctv, buffer);
 
-		safe_unpack32(&node->cpu_load, buffer);
-		safe_unpack64(&node->free_mem, buffer);
+		safe_unpack32(&node->sysinfo->loads[1], buffer);
+		safe_unpack64(&node->sysinfo->freeram, buffer);
 		safe_unpack32(&node->weight, buffer);
 		safe_unpack32(&node->reason_uid, buffer);
 
@@ -8897,8 +8897,8 @@ extern void pack_ping_slurmd_resp(ping_slurmd_resp_msg_t *msg,
 		pack64(msg->totalswap, buffer);
 		pack64(msg->freeswap, buffer);
 	} else if (protocol_version >= SLURM_MIN_PROTOCOL_VERSION) {
-		pack32(msg->cpu_load, buffer);
-		pack64(msg->free_mem, buffer);
+		pack32(msg->loads[1], buffer);
+		pack64(msg->freeram, buffer);
 	}
 }
 
@@ -8927,8 +8927,8 @@ static int _unpack_ping_slurmd_resp(ping_slurmd_resp_msg_t **msg_ptr,
 		safe_unpack64(&msg->totalswap, buffer);
 		safe_unpack64(&msg->freeswap, buffer);
 	} else if (protocol_version >= SLURM_MIN_PROTOCOL_VERSION) {
-		safe_unpack32(&msg->cpu_load, buffer);
-		safe_unpack64(&msg->free_mem, buffer);
+		safe_unpack32(&msg->loads[1], buffer);
+		safe_unpack64(&msg->freeram, buffer);
 	}
 
 	return SLURM_SUCCESS;

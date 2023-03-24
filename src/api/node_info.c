@@ -217,10 +217,11 @@ char *slurm_sprint_node_table(node_info_t *node_ptr, int one_liner)
 	xstrfmtcat(out, "CPUAlloc=%u CPUEfctv=%u CPUTot=%u ",
 		   alloc_cpus, node_ptr->cpus_efctv, node_ptr->cpus);
 
-	if (node_ptr->cpu_load == NO_VAL)
+	if (node_ptr->sysinfo->loads[1] == NO_VAL)
 		xstrcat(out, "CPULoad=N/A");
 	else
-		xstrfmtcat(out, "CPULoad=%.2f", (node_ptr->cpu_load / 100.0));
+		xstrfmtcat(out, "CPULoad=%.2f",
+			   (node_ptr->sysinfo->loads[1] / 100.0));
 
 	xstrcat(out, line_end);
 
@@ -296,10 +297,11 @@ char *slurm_sprint_node_table(node_info_t *node_ptr, int one_liner)
 	xstrfmtcat(out, "RealMemory=%"PRIu64" AllocMem=%"PRIu64" ",
 		   node_ptr->real_memory, alloc_memory);
 
-	if (node_ptr->free_mem == NO_VAL64)
+	if (node_ptr->sysinfo->freeram == NO_VAL64)
 		xstrcat(out, "FreeMem=N/A ");
 	else
-		xstrfmtcat(out, "FreeMem=%"PRIu64" ", node_ptr->free_mem);
+		xstrfmtcat(out, "FreeMem=%"PRIu64" ",
+			   node_ptr->sysinfo->freeram);
 
 	xstrfmtcat(out, "Sockets=%u Boards=%u",
 		   node_ptr->sockets, node_ptr->boards);
