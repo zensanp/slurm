@@ -232,45 +232,6 @@ extern int get_up_time(uint32_t *up_time)
 	return 0;
 }
 
-extern int get_cpu_load(uint32_t *cpu_load)
-{
-#if defined(__APPLE__) || defined(__NetBSD__) || defined(__FreeBSD__)
-	/* Not sure how to get CPU load on above systems.
-	 * Perhaps some method below works. */
-	*cpu_load = 0;
-#else
-	struct sysinfo info;
-	float shift_float = (float) (1 << SI_LOAD_SHIFT);
-
-	if (sysinfo(&info) < 0) {
-		*cpu_load = 0;
-		return errno;
-	}
-
-	*cpu_load = (info.loads[1] / shift_float) * 100.0;
-#endif
-	return 0;
-}
-
-extern int get_free_mem(uint64_t *free_mem)
-{
-#if defined(__APPLE__) || defined(__NetBSD__) || defined(__FreeBSD__)
-	/* Not sure how to get CPU load on above systems.
-	 * Perhaps some method below works. */
-	*free_mem = 0;
-#else
-	struct sysinfo info;
-
-	if (sysinfo(&info) < 0) {
-		*free_mem = 0;
-		return errno;
-	}
-
-	*free_mem = (((uint64_t )info.freeram)*info.mem_unit)/(1024*1024);
-#endif
-	return 0;
-}
-
 static uint64_t _mem_to_mb(unsigned long sysinfo_mem,
 			   unsigned long sysinfo_mem_unit)
 {

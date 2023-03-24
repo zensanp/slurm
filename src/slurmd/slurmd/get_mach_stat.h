@@ -41,8 +41,6 @@
 
 #include <inttypes.h>
 
-extern int get_cpu_load(uint32_t *cpu_load);
-extern int get_free_mem(uint64_t *free_mem);
 extern int get_sysinfo(ping_slurmd_resp_msg_t *slurm_sysinfo);
 extern int get_memory(uint64_t *real_memory);
 extern int get_tmp_disk(uint32_t *tmp_disk, char *tmp_fs);

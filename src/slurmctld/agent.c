@@ -1030,10 +1030,6 @@ static void *_thread_per_group_rpc(void *args)
 			ping_resp = (ping_slurmd_resp_msg_t *)
 				    ret_data_info->data;
 			lock_slurmctld(node_write_lock);
-			reset_node_load(ret_data_info->node_name,
-					ping_resp->loads[1]);
-			reset_node_free_mem(ret_data_info->node_name,
-					    ping_resp->freeram);
 			reset_node_sysinfo(ret_data_info->node_name, ping_resp);
 			ret_data_info->data = NULL; /* Don't free */
 			unlock_slurmctld(node_write_lock);

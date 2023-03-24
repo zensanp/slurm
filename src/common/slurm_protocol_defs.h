@@ -1268,8 +1268,6 @@ typedef struct suspend_int_msg {
 } suspend_int_msg_t;
 
 typedef struct ping_slurmd_resp_msg {
-	uint32_t cpu_load;	/* CPU load * 100 */
-	uint64_t free_mem;	/* Free memory in MiB */
 	uint32_t loads[3]; /* CPU load * 100 */
 	uint64_t totalram; /* Following sysinfo memory returend fields in MiB */
 	uint64_t freeram;
@@ -1323,12 +1321,10 @@ typedef struct slurm_node_registration_status_msg {
 	char *arch;
 	uint16_t cores;
 	uint16_t cpus;
-	uint32_t cpu_load;	/* CPU load * 100 */
 	uint8_t dynamic_type;	/* dynamic registration type */
 	char *dynamic_conf;	/* dynamic configuration */
 	char *dynamic_feature;	/* dynamic registration feature */
 	uint16_t flags;	        /* Flags from the slurmd SLURMD_REG_FLAG_* */
-	uint64_t free_mem;	/* Free memory in MiB */
 	char *cpu_spec_list;	/* list of specialized CPUs */
 	acct_gather_energy_t *energy;
 	char *features_active;	/* Currently active node features */

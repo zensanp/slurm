@@ -98,8 +98,6 @@ struct node_record {
 	uint16_t core_spec_cnt;		/* number of specialized cores on node*/
 	uint16_t cores;			/* number of cores per socket */
 	uint32_t cpu_bind;		/* default CPU binding type */
-	uint32_t cpu_load;		/* CPU load * 100 */
-	time_t cpu_load_time;		/* Time when cpu_load last set */
 	char *cpu_spec_list;		/* node's specialized cpus */
 	uint16_t cpus;			/* count of processors on the node */
 	uint16_t cpus_efctv;		/* count of effective cpus on the node.
@@ -113,8 +111,6 @@ struct node_record {
 	char *features_act;		/* node's active features, used only
 					 * for state save/restore, DO NOT
 					 * use for scheduling purposes */
-	uint64_t free_mem;		/* Free memory in MiB */
-	time_t free_mem_time;		/* Time when free_mem last set */
 	char *gres;			/* node's generic resources, used only
 					 * for state save/restore, DO NOT
 					 * use for scheduling purposes */

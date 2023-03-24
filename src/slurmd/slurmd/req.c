@@ -3227,8 +3227,6 @@ static void _rpc_ping(slurm_msg_t *msg)
 	} else {
 		slurm_msg_t resp_msg;
 		ping_slurmd_resp_msg_t ping_resp;
-		get_cpu_load(&ping_resp.cpu_load);
-		get_free_mem(&ping_resp.free_mem);
 		get_sysinfo(&ping_resp);
 		slurm_msg_t_copy(&resp_msg, msg);
 		resp_msg.msg_type = RESPONSE_PING_SLURMD;

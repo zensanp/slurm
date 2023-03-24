@@ -4610,44 +4610,6 @@ extern void node_fini (void)
 	node_fini2();
 }
 
-/* Reset a node's CPU load value */
-extern void reset_node_load(char *node_name, uint32_t cpu_load)
-{
-#ifdef HAVE_FRONT_END
-	return;
-#else
-	node_record_t *node_ptr;
-
-	node_ptr = find_node_record(node_name);
-	if (node_ptr) {
-		time_t now = time(NULL);
-		node_ptr->cpu_load = cpu_load;
-		node_ptr->cpu_load_time = now;
-		last_node_update = now;
-	} else
-		error("reset_node_load unable to find node %s", node_name);
-#endif
-}
-
-/* Reset a node's free memory value */
-extern void reset_node_free_mem(char *node_name, uint64_t free_mem)
-{
-#ifdef HAVE_FRONT_END
-	return;
-#else
-	node_record_t *node_ptr;
-
-	node_ptr = find_node_record(node_name);
-	if (node_ptr) {
-		time_t now = time(NULL);
-		node_ptr->free_mem = free_mem;
-		node_ptr->free_mem_time = now;
-		last_node_update = now;
-	} else
-		error("reset_node_free_mem unable to find node %s", node_name);
-#endif
-}
-
 /* Reset a node's sysinfo value */
 extern void reset_node_sysinfo(char *node_name, ping_slurmd_resp_msg_t *msg)
 {

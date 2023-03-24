@@ -2267,12 +2267,6 @@ extern step_record_t *build_batch_step(job_record_t *job_ptr_in);
 /* update first assigned job id as needed on reconfigure */
 extern void reset_first_job_id(void);
 
-/* Reset a node's CPU load value */
-extern void reset_node_load(char *node_name, uint32_t cpu_load);
-
-/* Reset a node's free memory value */
-extern void reset_node_free_mem(char *node_name, uint64_t free_mem);
-
 /* Reset a node sysinfo results*/
 extern void reset_node_sysinfo(char *node_name, ping_slurmd_resp_msg_t *msg);
 
