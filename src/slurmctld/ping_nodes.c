@@ -149,8 +149,7 @@ void ping_nodes (void)
 	front_end_record_t *front_end_ptr = NULL;
 #else
 	node_record_t *node_ptr = NULL;
-	time_t old_cpu_load_time = now - slurm_conf.slurmd_timeout;
-	time_t old_free_mem_time = now - slurm_conf.slurmd_timeout;
+	time_t old_sysinfo_time = now - slurm_conf.slurmd_timeout;
 #endif
 
 	ping_agent_args = xmalloc (sizeof (agent_arg_t));
@@ -315,8 +314,7 @@ void ping_nodes (void)
 
 		if ((!IS_NODE_NO_RESPOND(node_ptr)) &&
 		    (node_ptr->last_response >= still_live_time) &&
-		    (node_ptr->cpu_load_time >= old_cpu_load_time) &&
-		    (node_ptr->free_mem_time >= old_free_mem_time))
+		    (node_ptr->sysinfo_time >= old_sysinfo_time))
 			continue;
 
 		/* Do not keep pinging down nodes since this can induce

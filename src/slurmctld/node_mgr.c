@@ -3095,16 +3095,10 @@ extern int validate_node_specs(slurm_msg_t *slurm_msg, bool *newly_up)
 	node_ptr->os = reg_msg->os;
 	reg_msg->os = NULL;	/* Nothing left to free */
 
-	if (node_ptr->cpu_load != reg_msg->cpu_load) {
-		node_ptr->cpu_load = reg_msg->cpu_load;
-		node_ptr->cpu_load_time = now;
-		last_node_update = now;
-	}
-	if (node_ptr->free_mem != reg_msg->free_mem) {
-		node_ptr->free_mem = reg_msg->free_mem;
-		node_ptr->free_mem_time = now;
-		last_node_update = now;
-	}
+	slurm_free_ping_slurmd_resp(node_ptr->sysinfo);
+	node_ptr->sysinfo = reg_msg->sysinfo;
+	node_ptr->sysinfo_time = now;
+	reg_msg->sysinfo = NULL;
 
 	if (node_ptr->last_response &&
 	    (node_ptr->boot_time > node_ptr->last_response) &&
