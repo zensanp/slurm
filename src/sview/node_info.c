@@ -272,7 +272,7 @@ static void _layout_node_record(GtkTreeView *treeview,
 				   find_col_name(display_data_node,
 						 SORTID_CPUS),
 				   tmp_cnt);
-
+	/* TODO: Add other values from sysinfo */
 	if (node_ptr->sysinfo->loads[1] == NO_VAL) {
 		snprintf(tmp_cnt, sizeof(tmp_cnt), "N/A");
 	} else {
@@ -284,6 +284,7 @@ static void _layout_node_record(GtkTreeView *treeview,
 						 SORTID_CPU_LOAD),
 				   tmp_cnt);
 
+	/* TODO: Add other values from sysinfo */
 	if (node_ptr->sysinfo->freeram == NO_VAL64) {
 		snprintf(tmp_cnt, sizeof(tmp_cnt), "N/A");
 	} else {
@@ -532,6 +533,7 @@ static void _update_node_record(sview_node_info_t *sview_node_info_ptr,
 			 node_ptr->power->cap_watts);
 	}
 
+	/* TODO: Add other values from sysinfo */
 	if (node_ptr->sysinfo->loads[1] == NO_VAL) {
 		strlcpy(tmp_cpu_load, "N/A", sizeof(tmp_cpu_load));
 	} else {
@@ -539,6 +541,7 @@ static void _update_node_record(sview_node_info_t *sview_node_info_ptr,
 			 "%.2f", (node_ptr->sysinfo->loads[1] / 100.0));
 	}
 
+	/* TODO: Add other values from sysinfo */
 	if (node_ptr->sysinfo->freeram == NO_VAL64) {
 		strlcpy(tmp_free_mem, "N/A", sizeof(tmp_free_mem));
 	} else {
