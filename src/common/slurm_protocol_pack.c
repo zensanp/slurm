@@ -1055,8 +1055,6 @@ _pack_node_registration_status_msg(slurm_node_registration_status_msg_t *
 		pack32(msg->tmp_disk, buffer);
 		pack32(msg->up_time, buffer);
 		pack32(msg->hash_val, buffer);
-		pack32(msg->cpu_load, buffer);
-		pack64(msg->free_mem, buffer);
 
 		pack_ping_slurmd_resp(msg->sysinfo, buffer, protocol_version);
 		pack32(msg->job_count, buffer);
@@ -1160,8 +1158,6 @@ _unpack_node_registration_status_msg(slurm_node_registration_status_msg_t
 		safe_unpack32(&node_reg_ptr->tmp_disk, buffer);
 		safe_unpack32(&node_reg_ptr->up_time, buffer);
 		safe_unpack32(&node_reg_ptr->hash_val, buffer);
-		safe_unpack32(&node_reg_ptr->cpu_load, buffer);
-		safe_unpack64(&node_reg_ptr->free_mem, buffer);
 		_unpack_ping_slurmd_resp(&node_reg_ptr->sysinfo, buffer,
 					 protocol_version);
 
@@ -1641,8 +1637,6 @@ _unpack_node_info_members(node_info_t * node, buf_t *buffer,
 		safe_unpackstr(&node->cpu_spec_list, buffer);
 		safe_unpack16(&node->cpus_efctv, buffer);
 
-		safe_unpack32(&node->cpu_load, buffer);
-		safe_unpack64(&node->free_mem, buffer);
 		safe_unpack32(&node->weight, buffer);
 		safe_unpack32(&node->reason_uid, buffer);
 
@@ -8895,8 +8889,6 @@ extern void pack_ping_slurmd_resp(ping_slurmd_resp_msg_t *msg,
 	xassert(msg);
 
 	if (protocol_version >= SLURM_23_11_PROTOCOL_VERSION) {
-		pack32(msg->cpu_load, buffer);
-		pack64(msg->free_mem, buffer);
 		pack32_array(msg->loads, 3, buffer);
 		pack64(msg->totalram, buffer);
 		pack64(msg->freeram, buffer);
@@ -8923,8 +8915,6 @@ static int _unpack_ping_slurmd_resp(ping_slurmd_resp_msg_t **msg_ptr,
 	if (protocol_version >= SLURM_23_11_PROTOCOL_VERSION) {
 		uint32_t *array;
 
-		safe_unpack32(&msg->cpu_load, buffer);
-		safe_unpack64(&msg->free_mem, buffer);
 		safe_unpack32_array(&array, &tmp, buffer);
 		xassert(tmp == 3);
 		for (int i = 0; i < 3; i++)
