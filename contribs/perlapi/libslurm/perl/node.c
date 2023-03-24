@@ -31,7 +31,6 @@ node_info_to_hv(node_info_t *node_info, HV *hv)
 		STORE_FIELD(hv, node_info, arch, charp);
 	STORE_FIELD(hv, node_info, boot_time, time_t);
 	STORE_FIELD(hv, node_info, cores, uint16_t);
-	STORE_FIELD(hv, node_info, cpu_load, uint32_t);
 	STORE_FIELD(hv, node_info, cpus, uint16_t);
 	if (node_info->features)
 		STORE_FIELD(hv, node_info, features, charp);
@@ -93,7 +92,6 @@ hv_to_node_info(HV *hv, node_info_t *node_info)
 	FETCH_FIELD(hv, node_info, arch, charp, FALSE);
 	FETCH_FIELD(hv, node_info, boot_time, time_t, TRUE);
 	FETCH_FIELD(hv, node_info, cores, uint16_t, TRUE);
-	FETCH_FIELD(hv, node_info, cpu_load, uint32_t, TRUE);
 	FETCH_FIELD(hv, node_info, cpus, uint16_t, TRUE);
 	FETCH_FIELD(hv, node_info, features, charp, FALSE);
 	FETCH_FIELD(hv, node_info, features_act, charp, FALSE);
