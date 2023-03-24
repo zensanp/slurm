@@ -273,22 +273,22 @@ static void _layout_node_record(GtkTreeView *treeview,
 						 SORTID_CPUS),
 				   tmp_cnt);
 
-	if (node_ptr->cpu_load == NO_VAL) {
+	if (node_ptr->sysinfo->loads[1] == NO_VAL) {
 		snprintf(tmp_cnt, sizeof(tmp_cnt), "N/A");
 	} else {
 		snprintf(tmp_cnt, sizeof(tmp_cnt), "%.2f",
-			 (node_ptr->cpu_load / 100.0));
+			 (node_ptr->sysinfo->loads[1] / 100.0));
 	}
 	add_display_treestore_line(update, treestore, &iter,
 				   find_col_name(display_data_node,
 						 SORTID_CPU_LOAD),
 				   tmp_cnt);
 
-	if (node_ptr->free_mem == NO_VAL64) {
+	if (node_ptr->sysinfo->freeram == NO_VAL64) {
 		snprintf(tmp_cnt, sizeof(tmp_cnt), "N/A");
 	} else {
 		snprintf(tmp_cnt, sizeof(tmp_cnt), "%"PRIu64"M",
-		         node_ptr->free_mem);
+		         node_ptr->sysinfo->freeram);
 	}
 	add_display_treestore_line(update, treestore, &iter,
 				   find_col_name(display_data_node,
@@ -532,18 +532,18 @@ static void _update_node_record(sview_node_info_t *sview_node_info_ptr,
 			 node_ptr->power->cap_watts);
 	}
 
-	if (node_ptr->cpu_load == NO_VAL) {
+	if (node_ptr->sysinfo->loads[1] == NO_VAL) {
 		strlcpy(tmp_cpu_load, "N/A", sizeof(tmp_cpu_load));
 	} else {
 		snprintf(tmp_cpu_load, sizeof(tmp_cpu_load),
-			 "%.2f", (node_ptr->cpu_load / 100.0));
+			 "%.2f", (node_ptr->sysinfo->loads[1] / 100.0));
 	}
 
-	if (node_ptr->free_mem == NO_VAL64) {
+	if (node_ptr->sysinfo->freeram == NO_VAL64) {
 		strlcpy(tmp_free_mem, "N/A", sizeof(tmp_free_mem));
 	} else {
 		snprintf(tmp_free_mem, sizeof(tmp_free_mem),
-		         "%"PRIu64"M", node_ptr->free_mem);
+		         "%"PRIu64"M", node_ptr->sysinfo->freeram);
 	}
 
 	convert_num_unit((float)node_ptr->cpus, tmp_cpus,
