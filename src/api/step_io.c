@@ -1183,12 +1183,7 @@ extern void client_io_handler_finish(client_io_t *cio)
 	if (cio->io_running) {
 		struct timespec ts = { 0, 0 };
 
-		/*
-		 * FIXME: a comment here stated "Make the thread timeout
-		 * consistent with EIO_SHUTDOWN_WAIT", but this 180 second
-		 * value is not DEFAULT_EIO_SHUTDOWN_WAIT.
-		 */
-		ts.tv_sec = time(NULL) + 180;
+		ts.tv_sec = time(NULL) + slurm_conf.eio_timeout;
 		if (pthread_cond_timedwait(&cio->io_cond, &cio->io_mutex, &ts)) {
 			int rc;
 			if (!pthread_mutex_trylock(&cio->io_kill_mutex)) {
