@@ -1160,7 +1160,8 @@ extern void client_io_handler_start(client_io_t *cio)
 	xsignal(SIGTTIN, SIG_IGN);
 
 	slurm_mutex_lock(&cio->io_mutex);
-	slurm_thread_create_detached(_io_thr_internal, cio);
+	slurm_thread_create(&cio->ioid, _io_thr_internal, cio);
+	pthread_detach(cio->ioid);
 	cio->io_running = true;
 	slurm_mutex_unlock(&cio->io_mutex);
 
@@ -1184,8 +1185,13 @@ extern void client_io_handler_finish(client_io_t *cio)
 		 * value is not DEFAULT_EIO_SHUTDOWN_WAIT.
 		 */
 		ts.tv_sec = time(NULL) + 180;
-
-		slurm_cond_timedwait(&cio->io_cond, &cio->io_mutex, &ts);
+		if (pthread_cond_timedwait(&cio->io_cond, &cio->io_mutex, &ts)) {
+			int rc;
+			error("Killing eio thread after timeout (%u)",
+			      slurm_conf.eio_timeout);
+			if ((rc = pthread_kill(cio->ioid, SIGKILL)))
+			    error("pthread_kill: %s", strerror(rc));
+		}
 	}
 	slurm_mutex_unlock(&cio->io_mutex);
 }

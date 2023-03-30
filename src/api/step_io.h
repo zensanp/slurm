@@ -53,6 +53,7 @@ typedef struct {
 	uint32_t io_key_len;
 
 	/* internal variables */
+	pthread_t ioid;	/* I/O thread id */
 	bool io_running;		/* I/O thread running */
 	pthread_cond_t io_cond;         /* I/O thread state conditional */
 	pthread_mutex_t io_mutex;       /* I/O thread state mutex */
