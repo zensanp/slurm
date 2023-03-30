@@ -326,7 +326,8 @@ int eio_handle_mainloop(eio_handle_t *eio)
 		if (shutdown_time &&
 		    (difftime(time(NULL), shutdown_time)>=eio->shutdown_wait)) {
 			error("%s: Abandoning IO %d secs after job shutdown initiated",
-			      __func__, eio->shutdown_wait);
+			      __func__,
+			      (int) (time(NULL) - shutdown_time));
 			break;
 		}
 	}
