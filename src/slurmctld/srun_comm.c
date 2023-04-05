@@ -213,9 +213,12 @@ static void _srun_slurm_set_add(slurm_addr_t **addr, int port, char *host)
 	char *nodeaddr;
 	*addr = xmalloc(sizeof(slurm_addr_t));
 	nodeaddr = slurm_conf_get_nodeaddr(host);
-	slurm_set_addr(*addr, port, nodeaddr);
-	xfree(nodeaddr);
+	if (nodeaddr)
+		slurm_set_addr(*addr, port, nodeaddr);
+	else
+		slurm_set_addr(*addr, port, host);
 
+	xfree(nodeaddr);
 }
 
 static int _srun_node_fail(void *x, void *arg)
