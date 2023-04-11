@@ -820,6 +820,7 @@ _io_thr_internal(void *cio_arg)
 
 	debug("IO thread exiting");
 
+	slurm_mutex_lock(&cio->io_kill_mutex);
 	return NULL;
 }
 
@@ -1116,6 +1117,7 @@ client_io_t *client_io_handler_create(slurm_step_io_fds_t fds, int num_tasks,
 	cio->ioservers_ready_bits = bit_alloc(num_nodes);
 	cio->ioservers_ready = 0;
 	slurm_mutex_init(&cio->ioservers_lock);
+	slurm_mutex_init(&cio->io_kill_mutex);
 
 	_init_stdio_eio_objs(fds, cio);
 	ports = slurm_get_srun_port_range();
@@ -1187,10 +1189,12 @@ extern void client_io_handler_finish(client_io_t *cio)
 		ts.tv_sec = time(NULL) + 180;
 		if (pthread_cond_timedwait(&cio->io_cond, &cio->io_mutex, &ts)) {
 			int rc;
-			error("Killing eio thread after timeout (%u)",
-			      slurm_conf.eio_timeout);
-			if ((rc = pthread_kill(cio->ioid, SIGKILL)))
-			    error("pthread_kill: %s", strerror(rc));
+			if (!pthread_mutex_trylock(&cio->io_kill_mutex)) {
+				error("Killing eio thread after timeout (%u)",
+				      slurm_conf.eio_timeout);
+				if ((rc = pthread_kill(cio->ioid, SIGKILL)))
+				    error("pthread_kill: %s", strerror(rc));
+			}
 		}
 	}
 	slurm_mutex_unlock(&cio->io_mutex);

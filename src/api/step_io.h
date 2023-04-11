@@ -57,6 +57,7 @@ typedef struct {
 	bool io_running;		/* I/O thread running */
 	pthread_cond_t io_cond;         /* I/O thread state conditional */
 	pthread_mutex_t io_mutex;       /* I/O thread state mutex */
+	pthread_mutex_t io_kill_mutex; /* I/O thread kill mutex */
 
 	int num_listen;		/* Number of stdio listen sockets */
 	int *listensock;	/* Array of stdio listen sockets  */
