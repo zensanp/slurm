@@ -1117,6 +1117,8 @@ client_io_t *client_io_handler_create(slurm_step_io_fds_t fds, int num_tasks,
 	cio->ioservers_ready_bits = bit_alloc(num_nodes);
 	cio->ioservers_ready = 0;
 	slurm_mutex_init(&cio->ioservers_lock);
+	slurm_mutex_init(&cio->io_mutex);
+	slurm_cond_init(&cio->io_cond, NULL);
 	slurm_mutex_init(&cio->io_kill_mutex);
 
 	_init_stdio_eio_objs(fds, cio);
