@@ -993,19 +993,18 @@ extern void gres_select_filter_sock_core(gres_mc_data_t *mc_ptr,
 }
 
 /*
- * Select one specific GRES topo entry (set GRES bitmap) for this job on this
- *	node based upon per-node resource specification
+ * Select GRES topo entries (set GRES bitmap) for this job on this
+ *	node based upon per-node shared gres request.
  * job_res IN - job resource allocation
  * node_inx IN - global node index
  * job_node_inx IN - node index for this job's allocation
- * sock_gres IN - job/node request specifications, UPDATED: set bits in
+ * sock_gres IN/OUT - job/node request specifications, UPDATED: set bits in
  *		  gres_bit_select
  * job_id IN - job ID for logging
- * tres_mc_ptr IN - job's multi-core options
  */
-static void _pick_specific_topo(struct job_resources *job_res, int node_inx,
-				int job_node_inx, sock_gres_t *sock_gres,
-				uint32_t job_id, gres_mc_data_t *tres_mc_ptr)
+static void _set_shared_node_bits(struct job_resources *job_res, int node_inx,
+				  int job_node_inx, sock_gres_t *sock_gres,
+				  uint32_t job_id)
 {
 	int core_offset;
 	uint16_t sock_cnt = 0, cores_per_socket_cnt = 0;
@@ -2315,10 +2314,8 @@ extern int gres_select_filter_select_and_set(List *sock_gres_list,
 
 			if (gres_id_shared(
 				    sock_gres->gres_state_job->config_flags)) {
-				/* gres/mps: select specific topo bit for job */
-				_pick_specific_topo(job_res, i, node_inx,
-						    sock_gres, job_id,
-						    tres_mc_ptr);
+				_set_shared_node_bits(job_res, i, node_inx,
+						      sock_gres, job_id);
 			} else if (gres_js->gres_per_node) {
 				_set_node_bits(job_res, i, node_inx,
 					       sock_gres, job_id, tres_mc_ptr);
