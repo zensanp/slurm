@@ -1001,6 +1001,9 @@ static void _pick_shared_gres_topo(sock_gres_t *sock_gres, bool use_busy_dev,
 	gres_node_state_t *gres_ns = sock_gres->gres_state_node->gres_data;
 
 	for (int t = 0; (t < gres_ns->topo_cnt) && (alloc_gres_cnt == 0); t++) {
+		if (gres_js->type_id && gres_js->type_id != NO_VAL &&
+		    (gres_js->type_id != gres_ns->topo_type_id[t]))
+			continue;
 		if (use_busy_dev && (gres_ns->topo_gres_cnt_alloc[t] == 0))
 			continue;
 		if (gres_ns->topo_gres_cnt_alloc &&
