@@ -1020,6 +1020,7 @@ static void _pick_shared_gres_topo(sock_gres_t *sock_gres, bool use_busy_dev,
 			continue; /* GRES not on this socket */
 		bit_set(gres_js->gres_bit_select[node_inx], t);
 		gres_js->gres_cnt_node_select[node_inx] += *gres_needed;
+		gres_js->gres_per_bit_select[node_inx][t] = *gres_needed;
 		*gres_needed -= *gres_needed;
 	}
 }
@@ -1060,6 +1061,13 @@ static void _set_shared_node_bits(struct job_resources *job_res, int node_inx,
 		      __func__);
 		return;
 	}
+
+	if (!gres_js->gres_per_bit_select) {
+		gres_js->gres_per_bit_select = xcalloc(
+			gres_js->total_node_cnt, sizeof(bitstr_t *));
+	}
+	gres_js->gres_per_bit_select[node_inx] = xcalloc(
+		bit_size(gres_js->gres_bit_select[node_inx]), sizeof(uint64_t));
 
 	rc = get_job_resources_cnt(job_res, job_node_inx, &sock_cnt,
 				   &cores_per_socket_cnt);
