@@ -56,6 +56,8 @@
 /* max number of seconds to delay while waiting for job */
 #define MAX_DELAY 60
 
+extern uint32_t my_alloc_id;
+
 typedef struct {
 	const char *var;
 	int type;
@@ -529,6 +531,7 @@ static void _alloc_job(con_mgr_t *conmgr)
 	debug("%s: requesting allocation with %u tasks and %u hosts",
 	      __func__, (desc->num_tasks == NO_VAL ? 1 : desc->num_tasks),
 	      (desc->min_nodes == NO_VAL ? 1 : desc->min_nodes));
+	/* TODO: Should we retry slurm_alloc_resources_blocking? */
 	alloc = slurm_allocate_resources_blocking(desc, false,
 						  _pending_callback);
 	if (!alloc)
@@ -609,6 +612,7 @@ extern void get_allocation(con_mgr_t *conmgr, con_mgr_fd_t *con,
 
 		write_lock_state();
 		state.jobid = job_id = id.step_id.job_id;
+		my_alloc_id = state.jobid;
 		state.existing_allocation = existing_allocation = true;
 
 		/* scrape SLURM_* from calling env */

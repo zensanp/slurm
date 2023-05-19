@@ -88,6 +88,7 @@
 #define STEP_ABORT_TIME 2
 
 extern char **environ;
+uint32_t my_alloc_id = 0;
 
 /**********************************************************************
  * General declarations for step launch code
@@ -1247,6 +1248,12 @@ _job_complete_handler(struct step_launch_state *sls, slurm_msg_t *complete_msg)
 {
 	srun_job_complete_msg_t *step_msg =
 		(srun_job_complete_msg_t *) complete_msg->data;
+
+	if (my_alloc_id && (step_msg->job_id != my_alloc_id)) {
+		error("Ignoring SRUN_JOB_COMPLETE for JobId=%u, because our JobId=%u",
+		      step_msg->job_id, my_alloc_id);
+		return;
+	}
 
 	if (step_msg->step_id == NO_VAL) {
 		verbose("Complete job %u received",

@@ -90,10 +90,13 @@ static sig_atomic_t destroy_job = 0;
 static bool is_het_job = false;
 static bool revoke_job = false;
 
+extern uint32_t my_alloc_id;
+
 static void _set_pending_job_id(uint32_t job_id)
 {
 	debug2("Pending job allocation %u", job_id);
 	pending_job_id = job_id;
+	my_alloc_id = job_id;
 }
 
 static void *_safe_signal_while_allocating(void *in_data)

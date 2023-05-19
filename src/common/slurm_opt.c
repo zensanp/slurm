@@ -65,6 +65,8 @@
 
 #include "src/interfaces/select.h"
 
+extern uint32_t my_alloc_id;
+
 /*
  * This is ugly. But... less ugly than dozens of identical functions handling
  * variables that are just strings pushed and pulled out of the associated
@@ -2414,6 +2416,7 @@ static int arg_set_jobid(slurm_opt_t *opt, const char *arg)
 	step = slurm_parse_step_str(job);
 	opt->srun_opt->jobid = step->step_id.job_id;
 	opt->srun_opt->array_task_id = step->array_task_id;
+	my_alloc_id = step->step_id.job_id;
 	xfree(job);
 	slurm_destroy_selected_step(step);
 

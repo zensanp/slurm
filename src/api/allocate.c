@@ -97,6 +97,8 @@ static int _job_will_run_cluster(job_desc_msg_t *req,
 				 will_run_response_msg_t **will_run_resp,
 				 slurmdb_cluster_rec_t *cluster);
 
+extern uint32_t my_alloc_id;
+
 /*
  * slurm_allocate_resources - allocate resources for a job request
  * IN job_desc_msg - description of resource allocation request
@@ -236,6 +238,7 @@ slurm_allocate_resources_blocking (const job_desc_msg_t *user_req,
 		resp = (resource_allocation_response_msg_t *) resp_msg.data;
 		if (resp->node_cnt > 0) {
 			/* yes, allocation has been granted */
+			my_alloc_id = resp->job_id;
 			errno = SLURM_SUCCESS;
 		} else if (!req->immediate) {
 			if (resp->error_code != SLURM_SUCCESS)
