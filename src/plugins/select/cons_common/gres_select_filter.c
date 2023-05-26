@@ -559,6 +559,8 @@ extern void gres_select_filter_sock_core(gres_mc_data_t *mc_ptr,
 			cpus_per_gres = gres_js->def_cpus_per_gres;
 			has_cpus_per_gres = true;
 		} else if (first_pass && mc_ptr->ntasks_per_job &&
+			   !(gres_id_shared(
+				   sock_gres->gres_state_job->config_flags)) &&
 			   (mc_ptr->ntasks_per_job != NO_VAL) &&
 			   gres_js->gres_per_job) {
 			uint64_t tasks_per_gres = mc_ptr->ntasks_per_job;
