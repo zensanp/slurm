@@ -135,7 +135,7 @@ static void _job_fake_cred(struct slurm_step_ctx_struct *ctx)
  * NOTE: Free allocated memory using slurm_step_ctx_destroy.
  */
 extern slurm_step_ctx_t *step_ctx_create_timeout(
-	job_step_create_request_msg_t *step_req, int timeout)
+	job_step_create_request_msg_t *step_req, int timeout, bool *timed_out)
 {
 	struct slurm_step_ctx_struct *ctx = NULL;
 	job_step_create_response_msg_t *step_resp = NULL;
@@ -183,7 +183,9 @@ extern slurm_step_ctx_t *step_ctx_create_timeout(
 				break;
 			time_left = timeout - elapsed_time;
 			i = poll(&fds, 1, time_left);
-			if ((i >= 0) || destroy_step)
+			if (i == 0)
+				*timed_out = true;
+			if ((i > 0) || destroy_step)
 				break;
 			if ((errno == EINTR) || (errno == EAGAIN))
 				continue;
