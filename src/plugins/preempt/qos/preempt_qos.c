@@ -136,6 +136,9 @@ extern bool preempt_p_preemptable(
 	slurmdb_qos_rec_t *qos_ee = preemptee->qos_ptr;
 	slurmdb_qos_rec_t *qos_or = preemptor->qos_ptr;
 
+	if (preemptor->part_ptr->priority_tier <
+	    preemptee->part_ptr->priority_tier)
+		return false;
 	if (!qos_ee || !qos_or) {
 		return false;
 	} else if (qos_or->id == qos_ee->id) {
