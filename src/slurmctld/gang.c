@@ -769,9 +769,14 @@ static void _update_active_row(struct gs_part *p_ptr, int add_new_jobs)
 				if (p_ptr->num_shadows &&
 				    (preempt_mode != PREEMPT_MODE_OFF) &&
 				    (preempt_mode != PREEMPT_MODE_SUSPEND)) {
+					log_flag(GANG, "Preempting non-active JobId=%u",
+						 j_ptr->job_id);
 					_preempt_job_queue(j_ptr->job_id);
-				} else
+				} else {
+					log_flag(GANG, "Suspending non-active JobId=%u",
+						 j_ptr->job_id);
 					_suspend_job(j_ptr->job_ptr);
+				}
 				j_ptr->sig_state = GS_SUSPEND;
 				_clear_shadow(j_ptr);
 			}
@@ -795,9 +800,14 @@ static void _update_active_row(struct gs_part *p_ptr, int add_new_jobs)
 				if (p_ptr->num_shadows &&
 				    (preempt_mode != PREEMPT_MODE_OFF) &&
 				    (preempt_mode != PREEMPT_MODE_SUSPEND)) {
+					log_flag(GANG, "Preempting filler JobId=%u",
+						 j_ptr->job_id);
 					_preempt_job_queue(j_ptr->job_id);
-				} else
+				} else {
+					log_flag(GANG, "Suspending filler JobId=%u",
+						 j_ptr->job_id);
 					_suspend_job(j_ptr->job_ptr);
+				}
 				j_ptr->sig_state = GS_SUSPEND;
 				_clear_shadow(j_ptr);
 			}
