@@ -696,6 +696,10 @@ static void _cast_shadow(struct gs_job *j_ptr, uint16_t priority)
 						sizeof(struct gs_job *));
 		}
 		p_ptr->shadow[p_ptr->num_shadows++] = j_ptr;
+		log_flag(GANG, "Partition: %s adding a shadow %pJ from %s",
+			 p_ptr->part_name,
+			 j_ptr->job_ptr,
+			 j_ptr->job_ptr->part_ptr->name);
 	}
 	list_iterator_destroy(part_iterator);
 }
@@ -727,6 +731,10 @@ static void _clear_shadow(struct gs_job *j_ptr)
 		for (; i < p_ptr->num_shadows; i++)
 			p_ptr->shadow[i] = p_ptr->shadow[i+1];
 		p_ptr->shadow[p_ptr->num_shadows] = NULL;
+		log_flag(GANG, "Partition: %s removing a shadow %pJ from %s",
+			 p_ptr->part_name,
+			 j_ptr->job_ptr,
+			 j_ptr->job_ptr->part_ptr->name);
 	}
 	 list_iterator_destroy(part_iterator);
 }
