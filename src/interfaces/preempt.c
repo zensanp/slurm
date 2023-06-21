@@ -182,6 +182,7 @@ static int _add_preemptable_job(void *x, void *arg)
 		candidates->preemptee_job_list = list_create(NULL);
 
 	list_append(candidates->preemptee_job_list, candidate);
+	error("MARCIN preemptee candidates of %pJ appending %pJ", preemptor, candidate);
 
 	return 0;
 }
@@ -302,7 +303,6 @@ extern List slurm_find_preemptable_jobs(job_record_t *job_ptr)
 		list_sort(candidates.preemptee_job_list, _sort_by_youngest);
 	else if (candidates.preemptee_job_list)
 		list_sort(candidates.preemptee_job_list, _sort_by_prio);
-
 	return candidates.preemptee_job_list;
 }
 

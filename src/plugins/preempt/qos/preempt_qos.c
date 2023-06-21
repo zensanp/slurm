@@ -136,9 +136,15 @@ extern bool preempt_p_preemptable(
 	slurmdb_qos_rec_t *qos_ee = preemptee->qos_ptr;
 	slurmdb_qos_rec_t *qos_or = preemptor->qos_ptr;
 
-	if (preemptor->part_ptr->priority_tier <
-	    preemptee->part_ptr->priority_tier)
+	if (preemptor->job_id == preemptee->job_id)
 		return false;
+	if (preemptor->part_ptr->priority_tier <
+	    preemptee->part_ptr->priority_tier) {
+		error("MARCIN From part %u can't preempt", preemptor->job_id);
+		return false;
+	} else {
+		error("MARCIN From part %u %s can preempt %u %s", preemptor->job_id, preemptor->part_ptr->name, preemptee->job_id, preemptee->part_ptr->name);
+	}
 	if (!qos_ee || !qos_or) {
 		return false;
 	} else if (qos_or->id == qos_ee->id) {

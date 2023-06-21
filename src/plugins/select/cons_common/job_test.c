@@ -1073,6 +1073,8 @@ try_next_nodes_cnt:
 	}
 	if (job_ptr->details->whole_node == 1)
 		_block_whole_nodes(node_bitmap, avail_cores, free_cores);
+	free_core_array(&avail_cores);
+	avail_cores = copy_core_array(free_cores);
 
 	avail_res_array = _select_nodes(job_ptr, min_nodes, max_nodes,
 					req_nodes, node_bitmap, free_cores,
@@ -1144,8 +1146,8 @@ try_next_nodes_cnt:
 		}
 	}
 
-	if (job_ptr->details->whole_node == 1)
-		_block_whole_nodes(node_bitmap, avail_cores, free_cores);
+//	if (job_ptr->details->whole_node == 1)
+//		_block_whole_nodes(node_bitmap, avail_cores, free_cores);
 
 	/* make these changes permanent */
 	avail_cores_tmp = avail_cores;
