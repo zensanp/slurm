@@ -3872,6 +3872,9 @@ static int _parse_select_type_param(
 			*param |= CR_LLN;
 		} else if (!xstrcasecmp(str_parameters, "CR_PACK_NODES")) {
 			*param |= CR_PACK_NODES;
+		} else if (!xstrcasecmp(str_parameters,
+                          "MULTIPLE_SHARING_GRES_PJ")) {
+                       *param |= MULTIPLE_SHARING_GRES_PJ;
 		} else {
 			error("Bad SelectTypeParameter: %s", str_parameters);
 			rc = SLURM_ERROR;

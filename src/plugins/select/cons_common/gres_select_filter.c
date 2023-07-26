@@ -996,8 +996,18 @@ static void _pick_shared_gres_topo(sock_gres_t *sock_gres, bool use_busy_dev,
 				   bool use_single_dev, int node_inx, int s,
 				   uint64_t *gres_needed)
 {
+	int cnt_to_alloc, cnt_avail;
 	gres_job_state_t *gres_js = sock_gres->gres_state_job->gres_data;
 	gres_node_state_t *gres_ns = sock_gres->gres_state_node->gres_data;
+
+	if (!gres_ns->topo_gres_cnt_alloc || !gres_ns->topo_gres_cnt_avail) {
+		error("topo_gres_cnt_alloc or avail not set. This should never happen.");
+		return;
+	}
+
+	if (!use_single_dev &&
+	    !(slurm_conf.select_type_param & MULTIPLE_SHARING_GRES_PJ))
+		return;
 
 	for (int t = 0; (t < gres_ns->topo_cnt) && *gres_needed; t++) {
 		if (gres_js->type_id && gres_js->type_id != NO_VAL &&
@@ -1005,11 +1015,10 @@ static void _pick_shared_gres_topo(sock_gres_t *sock_gres, bool use_busy_dev,
 			continue;
 		if (use_busy_dev && (gres_ns->topo_gres_cnt_alloc[t] == 0))
 			continue;
-		if (gres_ns->topo_gres_cnt_alloc &&
-		    gres_ns->topo_gres_cnt_avail &&
-		    ((gres_ns->topo_gres_cnt_avail[t] -
-		      gres_ns->topo_gres_cnt_alloc[t]) <
-		     (use_single_dev ? *gres_needed : 1)))
+		cnt_avail = gres_ns->topo_gres_cnt_avail[t] -
+			    gres_ns->topo_gres_cnt_alloc[t] -
+			    gres_js->gres_per_bit_select[node_inx][t];
+		if (cnt_avail < (use_single_dev ? *gres_needed : 1))
 			continue; /* Insufficient resources */
 		if ((s == -1) && (!sock_gres->bits_any_sock ||
 				  !bit_test(sock_gres->bits_any_sock, t)))
@@ -1018,10 +1027,16 @@ static void _pick_shared_gres_topo(sock_gres_t *sock_gres, bool use_busy_dev,
 		    (!sock_gres->bits_by_sock || !sock_gres->bits_by_sock[s] ||
 		     !bit_test(sock_gres->bits_by_sock[s], t)))
 			continue; /* GRES not on this socket */
+
+		cnt_to_alloc = MIN(cnt_avail, *gres_needed);
+
+		if (!cnt_to_alloc)
+			continue;
+
 		bit_set(gres_js->gres_bit_select[node_inx], t);
-		gres_js->gres_cnt_node_select[node_inx] += *gres_needed;
-		gres_js->gres_per_bit_select[node_inx][t] = *gres_needed;
-		*gres_needed -= *gres_needed;
+		gres_js->gres_cnt_node_select[node_inx] += cnt_to_alloc;
+		gres_js->gres_per_bit_select[node_inx][t] += cnt_to_alloc;
+		*gres_needed -= cnt_to_alloc;
 	}
 }
 
@@ -1102,11 +1117,14 @@ static void _set_shared_node_bits(struct job_resources *job_res, int node_inx,
 	}
 
 	/*
-	 * Now pick specific GRES for these sockets.
-	 * First: Try to select a GRES local to allocated socket with
-	 *	sufficient resources.
-	 * Second: Use available GRES with sufficient resources.
-	 * Third: Use any available GRES.
+	 * Pick shared gres to allocate and associated sharing gres devices
+	 *
+	 * First: Try to select a single device local to used sockets
+	 *        with sufficient available gres.
+	 * Second: Try to select devices local to used sockets
+	 *         with any available gres
+	 * Third: Select single device with sufficient available gres.
+	 * Fourth: Select devices with any available gres
 	 */
 	for (s = -1;	/* Socket == - 1 if GRES avail from any socket */
 	     (s < sock_cnt) && gres_needed; s++) {
@@ -1117,12 +1135,22 @@ static void _set_shared_node_bits(struct job_resources *job_res, int node_inx,
 				       node_inx, s, &gres_needed);
 	}
 
-	/* Select available GRES with sufficient resources */
+	/* Select devices local to used sockets with any available gres */
+	for (s = -1; /* Socket == - 1 if GRES avail from any socket */
+	     (s < sock_cnt) && gres_needed; s++) {
+		if ((s >= 0) && !used_sock[s])
+			continue;
+
+		_pick_shared_gres_topo(sock_gres, use_busy_dev, false,
+				       node_inx, s, &gres_needed);
+	}
+
+	/* Select single device with sufficient available gres. */
 	if (gres_needed)
 		_pick_shared_gres_topo(sock_gres, use_busy_dev, true,
 				       node_inx, NO_SOCK_TEST, &gres_needed);
 
-	/* Select available GRES with any resources */
+	/* Select devices with any available gres */
 	if (gres_needed)
 		_pick_shared_gres_topo(sock_gres, use_busy_dev, false,
 				       node_inx, NO_SOCK_TEST, &gres_needed);
