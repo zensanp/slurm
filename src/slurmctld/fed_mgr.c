@@ -1733,6 +1733,8 @@ send_msg:
 static void _do_fed_job_complete(job_record_t *job_ptr, uint32_t job_state,
 				 uint32_t exit_code, time_t start_time)
 {
+	info("!!! %s: job_ptr:%pJ state:%s",
+	     __func__, job_ptr, job_state_string_complete(job_state));
 	if (job_ptr->job_state & JOB_REQUEUE_FED) {
 		/* Remove JOB_REQUEUE_FED and JOB_COMPLETING once
 		 * sibling reports that sibling job is done. Leave other
@@ -1754,6 +1756,7 @@ static void _handle_fed_job_complete(fed_job_update_info_t *job_update_info)
 		NO_LOCK, WRITE_LOCK, WRITE_LOCK, NO_LOCK, READ_LOCK };
 
 	lock_slurmctld(job_write_lock);
+	info("!!! %s: jobid:%d", __func__, job_update_info->job_id);
 	if (!(job_ptr = find_job_record(job_update_info->job_id))) {
 		error("%s: failed to find job_record for fed JobId=%u",
 		      __func__, job_update_info->job_id);
