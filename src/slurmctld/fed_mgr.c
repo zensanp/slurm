@@ -1269,6 +1269,9 @@ extern void fed_mgr_remove_fed_job_info(uint32_t job_id)
 {
 	slurm_mutex_lock(&fed_job_list_mutex);
 
+	info("!!! %s: remove %u from fed_job_list",
+	     __func__, job_id);
+
 	if (fed_job_list)
 		list_delete_all(fed_job_list, _delete_fed_job_info_by_id,
 				&job_id);
@@ -4591,6 +4594,10 @@ extern int fed_mgr_job_lock_set(uint32_t job_id, uint32_t cluster_id)
 	if (!(job_info = _find_fed_job_info(job_id))) {
 		error("Didn't find JobId=%u in fed_job_list", job_id);
 		rc = ESLURM_INVALID_JOB_ID;
+	} else if (job_info->cluster_lock == INFINITE) {
+		info("!!! %s: %u has been revoked",
+		     __func__, job_id);
+		rc = SLURM_ERROR;
 	} else if (_job_has_pending_updates(job_info)) {
 		log_flag(FEDR, "%s: cluster %u can't get cluster lock for JobId=%u because it has pending updates",
 			 __func__, cluster_id, job_id);
@@ -4843,6 +4850,18 @@ extern int fed_mgr_job_complete(job_record_t *job_ptr, uint32_t return_code,
 		 job_ptr, fed_mgr_cluster_rec->fed.id);
 
 	if (origin_id == fed_mgr_cluster_rec->fed.id) {
+		fed_job_info_t *job_info;
+		slurm_mutex_lock(&fed_job_list_mutex);
+		if (!(job_info = _find_fed_job_info(job_ptr->job_id))) {
+			error("%s: failed to find fed job info for fed %pJ",
+			      __func__, job_ptr);
+		} else {
+			info("!!! %s: %pJ job_info revoked",
+			     __func__, job_ptr);
+			job_info->cluster_lock = INFINITE;
+		}
+		slurm_mutex_unlock(&fed_job_list_mutex);
+
 		_revoke_sibling_jobs(job_ptr->job_id,
 				     fed_mgr_cluster_rec->fed.id,
 				     job_ptr->fed_details->siblings_active,
@@ -4959,8 +4978,20 @@ extern int fed_mgr_job_revoke(job_record_t *job_ptr, bool job_complete,
 	job_completion_logger(job_ptr, false);
 
 	/* Don't remove the origin job */
-	if (origin_id == fed_mgr_cluster_rec->fed.id)
+	if (origin_id == fed_mgr_cluster_rec->fed.id) {
+		fed_job_info_t *job_info;
+		slurm_mutex_lock(&fed_job_list_mutex);
+		if (!(job_info = _find_fed_job_info(job_ptr->job_id))) {
+			error("%s: failed to find fed job info for fed %pJ",
+			      __func__, job_ptr);
+		} else {
+			info("!!! %s: %pJ job_info revoked",
+			     __func__, job_ptr);
+			job_info->cluster_lock = INFINITE;
+		}
+		slurm_mutex_unlock(&fed_job_list_mutex);
 		return SLURM_SUCCESS;
+	}
 
 	/* Purge the revoked job -- remote only */
 	unlink_job_record(job_ptr);
