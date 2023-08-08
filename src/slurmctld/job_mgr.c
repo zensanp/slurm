@@ -13048,7 +13048,24 @@ static int _update_job(job_record_t *job_ptr, job_desc_msg_t *job_desc,
 			error_code = ESLURM_JOB_NOT_PENDING;
 			goto fini;
 		}
-
+		if (!job_desc->cpus_per_tres)
+			job_desc->cpus_per_tres =
+				xstrdup(job_ptr->cpus_per_tres);
+		if (!job_desc->tres_freq)
+			job_desc->tres_freq = xstrdup(job_ptr->tres_freq);
+		if (!job_desc->tres_per_job)
+			job_desc->tres_per_job = xstrdup(job_ptr->tres_per_job);
+		if (!job_desc->tres_per_node)
+			job_desc->tres_per_node =
+				xstrdup(job_ptr->tres_per_node);
+		if (!job_desc->tres_per_socket)
+			job_desc->tres_per_socket =
+				xstrdup(job_ptr->tres_per_socket);
+		if (!job_desc->tres_per_task)
+			job_desc->tres_per_task =
+				xstrdup(job_ptr->tres_per_task);
+		if (!job_desc->mem_per_tres)
+			job_desc->mem_per_tres = xstrdup(job_ptr->mem_per_tres);
 		if (job_desc->num_tasks == NO_VAL)
 			job_desc->num_tasks = detail_ptr->num_tasks;
 		if (job_desc->min_nodes == NO_VAL)
@@ -13101,6 +13118,22 @@ static int _update_job(job_record_t *job_ptr, job_desc_msg_t *job_desc,
 			job_desc->ntasks_per_socket = NO_VAL16; /* Unchanged */
 		if (job_desc->cpus_per_task == detail_ptr->cpus_per_task)
 			job_desc->cpus_per_task = NO_VAL16;	/* Unchanged */
+		if (!xstrcmp(job_desc->cpus_per_tres, job_ptr->cpus_per_tres))
+			xfree(job_desc->cpus_per_tres);
+		if (!xstrcmp(job_desc->tres_freq, job_ptr->tres_freq))
+			xfree(job_desc->tres_freq);
+		if (!xstrcmp(job_desc->tres_per_job, job_ptr->tres_per_job))
+			xfree(job_desc->tres_per_job);
+		if (!xstrcmp(job_desc->tres_per_node, job_ptr->tres_per_node))
+			xfree(job_desc->tres_per_node);
+		if (!xstrcmp(job_desc->tres_per_socket,
+			     job_ptr->tres_per_socket))
+			xfree(job_desc->tres_per_socket);
+		if (!xstrcmp(job_desc->tres_per_task, job_ptr->tres_per_task))
+			xfree(job_desc->tres_per_task);
+		if (!xstrcmp(job_desc->mem_per_tres, job_ptr->mem_per_tres))
+			xfree(job_desc->mem_per_tres);
+
 	}
 
 	if ((job_desc->min_nodes != NO_VAL) &&
