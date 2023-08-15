@@ -498,6 +498,17 @@ extern int common_cgroup_instantiate(xcgroup_t *cg)
 		return fstatus;
 	}
 
+	char subtree_controller_path[PATH_MAX];
+	strcpy(subtree_controller_path,file_path);
+	strcat(subtree_controller_path,"/cgroup.subtree_control");
+
+	char procsfile_path[PATH_MAX];
+	strcpy(procsfile_path,file_path);
+	strcat(procsfile_path,"/cgroup.procs");
+
+	chown(subtree_controller_path, uid, gid);
+	chown(procsfile_path, uid, gid);
+	
 	/* following operations failure might not result in a general
 	 * failure so set output status to success */
 	fstatus = SLURM_SUCCESS;
