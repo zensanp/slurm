@@ -618,6 +618,16 @@ extern int common_cgroup_delete(xcgroup_t *cg)
 		error("invalid control group");
 		return SLURM_SUCCESS;
 	}
+	
+	// Quick cleanup via cgroup.kill file
+	char cg_kill_path[PATH_MAX];
+	strcpy(cg_kill_path,cg->path);
+	strcat(cg_kill_path,"/cgroup.kill");
+
+	FILE *fptr;
+	fptr = fopen(cg_kill_path, "w");
+	fprintf(fptr, "1");
+	fclose(fptr);
 
 	/*
 	 * Do 5 retries if we receive an EBUSY and there are no pids, because we
